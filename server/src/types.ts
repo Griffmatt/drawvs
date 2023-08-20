@@ -1,10 +1,14 @@
 type Rooms = Map<
   string,
   {
-    name: string
-    id: string
-    isAdmin: boolean
-  }[]
+    gameStarted: boolean,
+    users: {
+      name: string
+      id: string
+      isAdmin: boolean
+      done: boolean
+    }[]
+  }
 >
 
 export type { Rooms }

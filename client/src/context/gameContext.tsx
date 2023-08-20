@@ -7,6 +7,7 @@ import {
   useEffect,
 } from "react";
 import { socket } from "~/assets/socket";
+import type { Image, User } from "~/assets/types";
 
 interface Context {
   game: Game;
@@ -16,8 +17,6 @@ interface Context {
 interface Props {
   children: ReactNode;
 }
-
-type User = { name: string; id: string; isAdmin: boolean };
 
 type PayloadA = {
   type: "gameName";
@@ -39,12 +38,29 @@ type PayloadD = {
   type: "rounds";
   data: number;
 };
-type Payload = PayloadA | PayloadB | PayloadC | PayloadD;
+
+type PayloadE = {
+  type: "round";
+  data: number;
+};
+
+type PayloadF = {
+  type: "image";
+  data: {
+    userId: string;
+    id: number;
+    prompt: string;
+    image: Image | null;
+  };
+};
+
+type Payload = PayloadA | PayloadB | PayloadC | PayloadD | PayloadE | PayloadF;
 
 type Game = {
   name: string;
   users: User[];
   rounds: number;
+  round: number;
 };
 
 const gameContext = createContext({} as Context);
@@ -60,7 +76,37 @@ export const GameContextProvider = ({ children }: Props) => {
       case "users":
         return { ...state, users: data };
       case "rounds":
-        return { ...state, rounds: data };
+        const images = Array.from(
+          { length: Math.ceil(data / 2) },
+          (_, index) => {
+            return { id: index, prompt: "", image: null };
+          }
+        );
+        const usersInitImages = state.users.map((user) => {
+          return { ...user, images: images };
+        });
+        return { ...state, rounds: data, users: usersInitImages };
+      case "round":
+        console.log();
+        return { ...state, round: state.round + data };
+      case "image":
+        const userImages = state.users.map((user) => {
+          if (user.id === data.userId) {
+            const images = user.images.map((image) => {
+              if (image.id === data.id) {
+                return {
+                  id: data.id,
+                  prompt: data.prompt,
+                  image: data.image,
+                };
+              }
+              return image;
+            });
+            return { ...user, images };
+          }
+          return user;
+        });
+        return { ...state, users: userImages };
       case "all":
         return { ...state, name: data.name };
       default:
@@ -72,15 +118,14 @@ export const GameContextProvider = ({ children }: Props) => {
     name: "Normal",
     users: [] as User[],
     rounds: 0,
+    round: 1,
   };
 
   const [game, dispatchGame] = useReducer(reducer, initialState);
   const router = useRouter();
 
   useEffect(() => {
-    const updateUsers = (
-      data: { name: string; id: string; isAdmin: boolean }[]
-    ) => {
+    const updateUsers = (data: User[]) => {
       dispatchGame({
         type: "users",
         data: data,
@@ -114,12 +159,25 @@ export const GameContextProvider = ({ children }: Props) => {
       void router.push("/draw");
     };
 
+    const receiveImage = (data: {
+      userId: string;
+      id: number;
+      prompt: string;
+      image: Image | null;
+    }) => {
+      dispatchGame({
+        type: "image",
+        data: data,
+      });
+    };
+
     socket.on("update-users", updateUsers);
     socket.on("update-name", updateGame);
     socket.on("request-data", sendData);
     socket.on("receive-data", receiveData);
     socket.on("kicked", kicked);
     socket.on("start-game", startGame);
+    socket.on("receive-image", receiveImage);
 
     return () => {
       socket.off("update-users", updateUsers);

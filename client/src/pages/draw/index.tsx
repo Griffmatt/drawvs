@@ -1,30 +1,56 @@
 import React, { useEffect, useState } from "react";
 
 import DoneButton from "~/components/doneButton";
-import DrawingBoard from "~/components/drawingBoard";
 import ToolSelector from "~/components/toolSelector";
 import LineFadeTools from "~/components/lineFadeTools";
 import ColorSelector from "~/components/colorSelector";
 import { useRouter } from "next/router";
-import { useUserContext } from "~/context/userContext";
 import { useGameContext } from "~/context/gameContext";
+import GameArea from "~/components/gameArea";
+import { socket } from "~/assets/socket";
 
 export default function Draw() {
   const router = useRouter();
-  const { name } = useUserContext();
-  const { game } = useGameContext();
+  const { game, dispatchGame } = useGameContext();
   const [time, setTime] = useState(60);
 
   useEffect(() => {
-    if (name === "") {
+    if (game.users.length === 0) {
       void router.replace("/");
     }
-  }, [name, router]);
+  }, [game.users.length, router]);
 
   useEffect(() => {
-    const interval = setInterval(() => setTime((prev) => prev - 1), 1000);
+    const nextRound = () => {
+      setTime(60);
+      dispatchGame({
+        type: "round",
+        data: 1,
+      });
+    };
 
-    return () => clearInterval(interval);
+    socket.on("round-done", nextRound);
+    return () => {
+      socket.off("round-done", nextRound);
+    };
+  }, [dispatchGame, setTime]);
+
+  useEffect(() => {
+    const interval = setInterval(
+      () =>
+        setTime((prev) => {
+          if (prev > 0) {
+            return prev - 1;
+          }
+          socket.emit("done");
+          return 0;
+        }),
+      1000
+    );
+
+    return () => {
+      clearInterval(interval);
+    };
   }, []);
 
   return (
@@ -34,12 +60,7 @@ export default function Draw() {
         <ColorSelector />
       </div>
       <div className="col-span-5 grid gap-2">
-        <div className="aspect-[5/4] w-full">
-          <div className="flex h-[20%] items-center justify-center rounded-t bg-black/20">
-            <h2>DRAWVS</h2>
-          </div>
-          <DrawingBoard />
-        </div>
+        <GameArea />
         <div className="flex justify-between">
           <LineFadeTools />
           <DoneButton />

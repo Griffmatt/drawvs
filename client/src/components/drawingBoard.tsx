@@ -1,7 +1,17 @@
 import { useRef, useLayoutEffect, useState } from "react";
 import { useDraw } from "~/hooks/useDraw";
+import type { Image } from "~/assets/types";
 
-export default function DrawingBoard() {
+interface Props {
+  image: {
+    userId: string;
+    id: number;
+    prompt: string;
+    image: Image | null;
+  };
+}
+
+export default function DrawingBoard({ image }: Props) {
   const { startDrawing, canvasRef } = useDraw();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [dimensions, setDimensions] = useState({ height: 0, width: 0 });

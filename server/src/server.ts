@@ -21,8 +21,8 @@ const io = new Server(server)
 const removeUser = (rooms: Rooms, roomId: string, userId: string) => {
   const room = rooms.get(roomId)
   if (room) {
-    const users = room.filter((user) => user.id !== userId)
-    return users
+    const users = room.users.filter((user) => user.id !== userId)
+    return { ...room, users }
   }
   return
 }
@@ -30,20 +30,24 @@ const removeUser = (rooms: Rooms, roomId: string, userId: string) => {
 io.on('connection', (socket) => {
   socket.on('create-room', (data) => {
     if (rooms.has(data.code)) return
-    rooms.set(data.code, [{ name: data.name, id: socket.id, isAdmin: true }])
+    const userData = [
+      { name: data.name, id: socket.id, isAdmin: true, done: false }
+    ]
+    rooms.set(data.code, {
+      users: userData,
+      gameStarted: false
+    })
     usersRoom.set(socket.id, data.code)
     socket.join(data.code)
-    socket.emit('user-joined', [
-      { name: data.name, id: socket.id, isAdmin: true }
-    ])
+    socket.emit('user-joined', userData)
   })
 
-  socket.on('join-room', (data) => {
+  socket.on('join-room', (data: { name: string; code: string }) => {
     const room = rooms.get(data.code)
-    if (room && room.length < 8) {
+    if (room && room.users.length < 8) {
       socket.join(data.code)
 
-      const nameExists = room.some(
+      const nameExists = room.users.some(
         (user) => user.name.toLowerCase() === data.name.toLowerCase()
       )
 
@@ -54,18 +58,23 @@ io.on('connection', (socket) => {
         return
       }
 
-      const userData = [
+      const roomData = {
         ...room,
-        { name: data.name, id: socket.id, isAdmin: false }
-      ]
-      rooms.set(data.code, userData)
+        users: [
+          ...room.users,
+          { name: data.name, id: socket.id, isAdmin: false, done: false }
+        ]
+      }
+      rooms.set(data.code, roomData)
       usersRoom.set(socket.id, data.code)
 
-      const admin = rooms.get(data.code)?.filter((user) => user.isAdmin)[0]
+      const admin = rooms
+        .get(data.code)
+        ?.users.filter((user) => user.isAdmin)[0]
       if (admin) {
         socket.to(admin.id).emit('request-data', socket.id)
-        socket.to(data.code).emit('update-users', userData)
-        socket.emit('user-joined', userData)
+        socket.to(data.code).emit('update-users', roomData.users)
+        socket.emit('user-joined', roomData.users)
       }
       return
     }
@@ -82,59 +91,81 @@ io.on('connection', (socket) => {
     socket.to(data.roomId).emit('update-name', data.mode)
   })
 
-  socket.on('starting-game', (data) => {
-    socket.to(data.code).emit('start-game')
-    socket.emit('start-game')
-  })
-
-  socket.on('user-left', (data) => {
-    const users = removeUser(rooms, data.code, socket.id)
-    if (users) {
-      const hasAdmin = users.some((user) => user.isAdmin)
-      socket.leave(data.code)
-      if (!hasAdmin && users[0]) {
-        users[0].isAdmin = true
-        rooms.set(data.code, users)
-        socket.to(data.code).emit('update-users', users)
-        return
+  socket.on('starting-game', () => {
+    const roomId = usersRoom.get(socket.id)
+    if (roomId) {
+      const room = rooms.get(roomId)
+      if (room) {
+        rooms.set(roomId, { ...room, gameStarted: true })
+        socket.to(roomId).emit('start-game')
+        socket.emit('start-game')
       }
-      if (hasAdmin) {
-        rooms.set(data.code, users)
-        socket.to(data.code).emit('update-users', users)
-        return
-      }
-      rooms.delete(data.code)
-      usersRoom.delete(socket.id)
     }
   })
 
   socket.on('kick-player', (data) => {
-    const users = removeUser(rooms, data.code, data.id)
-    if (users) {
-      socket.to(data.id).socketsLeave(data.code)
-      socket.to(data.id).emit('kicked')
-      socket.to(data.code).emit('update-users', users)
-      rooms.set(data.code, users)
-      usersRoom.delete(socket.id)
+    const roomId = usersRoom.get(socket.id)
+    if (roomId) {
+      const room = removeUser(rooms, roomId, data.id)
+      if (room) {
+        socket.to(data.id).socketsLeave(roomId)
+        socket.to(data.id).emit('kicked')
+        socket.to(roomId).emit('update-users', room.users)
+        rooms.set(roomId, room)
+        usersRoom.delete(socket.id)
+      }
     }
   })
 
-  socket.on('disconnect', () => {
+  socket.on('done', () => {
     const roomId = usersRoom.get(socket.id)
     if (roomId) {
-      const users = removeUser(rooms, roomId, socket.id)
-      if (users) {
-        const hasAdmin = users.some((user) => user.isAdmin)
+      const room = rooms.get(roomId)
+      console.log(room)
+      if (room) {
+        const updated = room.users.map((user) => {
+          if (socket.id === user.id) {
+            return { ...user, done: true }
+          }
+          return user
+        })
+        rooms.set(roomId, { ...room, users: updated })
+        console.log(updated)
+        if (updated.every((user) => user.done)) {
+          const undo = room.users.map((user) => {
+            return { ...user, done: false }
+          })
+          rooms.set(roomId, { ...room, users: undo })
+          socket.to(roomId).emit('round-done')
+          socket.emit('round-done')
+        }
+      }
+    }
+  })
+
+  socket.on('send-image', (data) => {
+    const roomId = usersRoom.get(socket.id)
+    if (roomId) {
+      socket.to(roomId).emit('receive-image', data)
+    }
+  })
+
+  socket.on('leave-room', () => {
+    const roomId = usersRoom.get(socket.id)
+    if (roomId) {
+      const room = removeUser(rooms, roomId, socket.id)
+      if (room) {
+        const hasAdmin = room.users.some((user) => user.isAdmin)
         socket.leave(roomId)
-        if (!hasAdmin && users[0]) {
-          users[0].isAdmin = true
-          rooms.set(roomId, users)
-          socket.to(roomId).emit('update-users', users)
+        if (!hasAdmin && room.users[0]) {
+          room.users[0].isAdmin = true
+          rooms.set(roomId, { ...room, users: room.users })
+          socket.to(roomId).emit('update-users', room.users)
           return
         }
         if (hasAdmin) {
-          rooms.set(roomId, users)
-          socket.to(roomId).emit('update-users', users)
+          rooms.set(roomId, room)
+          socket.to(roomId).emit('update-users', room.users)
           return
         }
         rooms.delete(roomId)
@@ -143,6 +174,42 @@ io.on('connection', (socket) => {
     }
   })
 
+  socket.on('disconnect', () => {
+    const roomId = usersRoom.get(socket.id)
+    if (roomId) {
+      const room = rooms.get(roomId)
+      const roomUpdated = removeUser(rooms, roomId, socket.id)
+      if (room) {
+        if (room.gameStarted) {
+          const user = room.users.filter((user) => user.id === socket.id)[0]
+          if (user?.isAdmin && roomUpdated && roomUpdated.users[0]) {
+            roomUpdated.users[0].isAdmin = true
+            roomUpdated.users.push({ ...user, isAdmin: false })
+            socket.to(roomId).emit('update-users', roomUpdated.users)
+            rooms.set(roomId, roomUpdated)
+          }
+          return
+        }
+      }
+      if (roomUpdated) {
+        const hasAdmin = roomUpdated.users.some((user) => user.isAdmin)
+        socket.leave(roomId)
+        if (!hasAdmin && roomUpdated.users[0]) {
+          roomUpdated.users[0].isAdmin = true
+          rooms.set(roomId, roomUpdated)
+          socket.to(roomId).emit('update-users', roomUpdated.users)
+          return
+        }
+        if (hasAdmin) {
+          rooms.set(roomId, roomUpdated)
+          socket.to(roomId).emit('update-users', roomUpdated.users)
+          return
+        }
+        rooms.delete(roomId)
+        usersRoom.delete(socket.id)
+      }
+    }
+  })
 })
 
 const port = process.env.PORT || 3000

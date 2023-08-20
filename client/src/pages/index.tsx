@@ -1,14 +1,14 @@
 import { type FormEvent, useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { useUserContext } from "~/context/userContext";
 import { socket } from "~/assets/socket";
 import { useGameContext } from "~/context/gameContext";
+import type { User } from "~/assets/types";
 
 export default function Home() {
   const [selected, setSelected] = useState<"Create" | "Join">("Create");
   const [message, setMessage] = useState("blank");
-
-  const { name, setName, code, setCode } = useUserContext();
+  const[name, setName] = useState("")
+  const [code, setCode] = useState("")
   const { dispatchGame } = useGameContext();
   const router = useRouter();
 
@@ -43,7 +43,7 @@ export default function Home() {
 
   useEffect(() => {
     const userJoined = (
-      data: { name: string; id: string; isAdmin: boolean }[]
+      data: User[]
     ) => {
       dispatchGame({
         type: "users",

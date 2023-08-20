@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import { useUserContext } from "~/context/userContext";
 import { useRouter } from "next/router";
 import BackButton from "~/components/backButton";
 import { socket } from "~/assets/socket";
@@ -8,29 +7,28 @@ import { useGameContext } from "~/context/gameContext";
 
 export default function Lobby() {
   const router = useRouter();
-  const { name, code } = useUserContext();
   const { game, dispatchGame } = useGameContext();
-
+  console.log(game.users)
   const filler = Array.from({ length: 8 - game.users.length }, () => "Empty");
   const isAdmin = game.users.filter((user) => user.id === socket.id)[0]
     ?.isAdmin;
 
-  useEffect(() => {
-    if (name === "") {
-      void router.replace("/");
-    }
-  }, [name, router]);
+    useEffect(() => {
+      if (game.users.length=== 0) {
+        void router.replace("/");
+      }
+    }, [game.users.length, router]);
 
   const handleGameChange = (mode: string) => {
     dispatchGame({
       type: "gameName",
       data: mode,
     });
-    socket.emit("game-change", { roomId: code, mode: mode });
+    socket.emit("game-change",  mode );
   };
 
   const kickPlayer = (id: string) => {
-    socket.emit("kick-player", { id: id, code: code });
+    socket.emit("kick-player", id);
     const users = game.users.filter((user) => user.id !== id);
     dispatchGame({
       type: "users",
@@ -40,7 +38,7 @@ export default function Lobby() {
 
   const startGame = () => {
     if (isAdmin) {
-      socket.emit("starting-game", {code: code});
+      socket.emit("starting-game");
     }
   };
 

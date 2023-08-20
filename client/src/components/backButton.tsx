@@ -1,15 +1,12 @@
 import { useRouter } from "next/router";
 import { socket } from "~/assets/socket";
 
-import { useUserContext } from "~/context/userContext";
-
 export default function BackButton() {
   const router = useRouter();
-  const { code } = useUserContext();
 
   const handleClick = () => {
-    socket.emit("user-left", { code });
-    router.back();
+    socket.emit("leave-room");
+   void router.replace("/");
   };
   return (
     <button
