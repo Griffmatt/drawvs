@@ -34,11 +34,17 @@ type PayloadC = {
     users: User[];
   };
 };
-type Payload = PayloadA | PayloadB | PayloadC;
+
+type PayloadD = {
+  type: "rounds";
+  data: number;
+};
+type Payload = PayloadA | PayloadB | PayloadC | PayloadD;
 
 type Game = {
   name: string;
   users: User[];
+  rounds: number;
 };
 
 const gameContext = createContext({} as Context);
@@ -53,6 +59,8 @@ export const GameContextProvider = ({ children }: Props) => {
         return { ...state, name: data };
       case "users":
         return { ...state, users: data };
+      case "rounds":
+        return { ...state, rounds: data };
       case "all":
         return { ...state, name: data.name };
       default:
@@ -63,7 +71,7 @@ export const GameContextProvider = ({ children }: Props) => {
   const initialState = {
     name: "Normal",
     users: [] as User[],
-    rounds: 0
+    rounds: 0,
   };
 
   const [game, dispatchGame] = useReducer(reducer, initialState);
@@ -102,15 +110,16 @@ export const GameContextProvider = ({ children }: Props) => {
     };
 
     const startGame = () => {
-      void router.push("/draw")
-    }
+      dispatchGame({ type: "rounds", data: game.users.length });
+      void router.push("/draw");
+    };
 
     socket.on("update-users", updateUsers);
     socket.on("update-name", updateGame);
     socket.on("request-data", sendData);
     socket.on("receive-data", receiveData);
     socket.on("kicked", kicked);
-    socket.on('start-game', startGame)
+    socket.on("start-game", startGame);
 
     return () => {
       socket.off("update-users", updateUsers);
@@ -118,7 +127,7 @@ export const GameContextProvider = ({ children }: Props) => {
       socket.off("request-data", sendData);
       socket.off("receive-data", receiveData);
       socket.off("kicked", kicked);
-      socket.off('start-game', startGame)
+      socket.off("start-game", startGame);
     };
   }, [dispatchGame, game, router]);
 
