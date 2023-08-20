@@ -1,0 +1,99 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply text-white select-none;
+}
+
+h1 {
+  @apply text-9xl font-black;
+}
+
+h2 {
+  @apply text-4xl font-extrabold;
+}
+
+h3 {
+  @apply text-2xl font-bold;
+}
+
+h4 {
+  @apply text-xl;
+}
+
+input {
+  @apply w-full rounded border-2 border-white bg-slate-300/20 px-2 py-4 text-center text-3xl font-extrabold outline-0 focus:bg-slate-200/10;
+}
+
+.black {
+  @apply bg-black;
+}
+
+.white {
+    @apply bg-white;
+}
+
+.dark-gray {
+    @apply bg-gray-600;
+}
+
+.gray {
+    @apply bg-gray-400;
+}
+
+.dark-blue {
+    @apply bg-blue-800;
+}
+
+.blue {
+    @apply bg-blue-600;
+}
+
+.dark-green {
+    @apply bg-green-800;
+}
+
+.dark-red {
+    @apply bg-red-800;
+}
+
+.brown {
+    @apply bg-orange-950;
+}
+
+.green {
+    @apply bg-green-600;
+}
+
+.red {
+    @apply bg-red-600;
+}
+
+.orange {
+    @apply bg-orange-500;
+}
+
+.gold {
+    @apply bg-yellow-600;
+}
+
+.magenta {
+    @apply bg-violet-700;
+}
+
+.rose {
+    @apply bg-rose-300
+}
+
+.yellow {
+    @apply bg-yellow-400;
+}
+
+.pink {
+    @apply bg-pink-400;
+}
+
+.peach {
+    @apply bg-orange-200;
+}

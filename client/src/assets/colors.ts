@@ -1,0 +1,20 @@
+export const COLORS = [
+  { code: "#000000", name: "black" },
+  { code: "#FFFFFF", name: "white" },
+  { code: "#666666",name: "dark-gray" },
+  { code: "#AAAAAA",name: "gray" },
+  { code: "#0050CD",name: "dark-blue" },
+  { code: "#26C9FF",name: "blue" },
+  { code: "#017420",name: "dark-green" },
+  { code: "#990000",name: "dark-red" },
+  { code: "#964112",name: "brown" },
+  { code: "#11B03C",name: "green" },
+  { code: "#FF0013",name: "red" },
+  { code: "#FF7829",name: "orange" },
+  { code: "#B0701C",name: "gold"},
+  { code: "#99004E",name: "magenta" },
+  { code: "#CB5A57",name: "rose" },
+  { code: "#FFC126",name: "yellow" },
+  { code: "#FF008F",name: "pink" },
+  { code: "#FEAFA8",name: "peach" }
+];
