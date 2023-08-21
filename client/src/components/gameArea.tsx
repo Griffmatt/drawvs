@@ -5,8 +5,8 @@ import ToolSelector from "~/components/toolSelector";
 import LineFadeTools from "~/components/lineFadeTools";
 import ColorSelector from "~/components/colorSelector";
 import TextBoard from "./textBoard";
+import { CanvasLayout } from "./UI/CanvasLayout";
 import { socket } from "~/assets/socket";
-import type { ReactNode } from "react";
 
 export default function GameArea() {
   const { game } = useGameContext();
@@ -29,13 +29,13 @@ export default function GameArea() {
             <ColorSelector />
           </div>
           <div className="col-span-5 grid gap-2">
-            <Layout prompt={image.prompt} round={game.round}>
+            <CanvasLayout prompt={image.prompt}>
               <DrawingBoard image={image} userId={userImages.userId} />
-              <div className="flex justify-between">
-                <LineFadeTools />
-                <DoneButton />
-              </div>
-            </Layout>
+            </CanvasLayout>
+            <div className="flex justify-between">
+              <LineFadeTools />
+              <DoneButton />
+            </div>
           </div>
           <div className="flex flex-col justify-center text-center">
             <ToolSelector />
@@ -43,29 +43,9 @@ export default function GameArea() {
         </>
       ) : (
         <div className="col-span-5 col-start-2 grid gap-2">
-          <Layout round={game.round}>
-            <TextBoard image={image} userId={userImages.userId} />
-          </Layout>
+          <TextBoard image={image} userId={userImages.userId} />
         </div>
       )}
     </>
   );
 }
-
-interface Layout {
-  children: ReactNode;
-  prompt?: string;
-  round: number
-}
-
-const Layout = ({ children, prompt, round }: Layout) => {
-  return (
-    <div className="aspect-[5/4] w-full">
-      <div className="flex h-[20%] flex-col items-center justify-center gap-2 rounded-t bg-black/20">
-        <h2>DRAWVS</h2>
-        {round % 2 === 0 ? <h3>{prompt}</h3> : <h3>Describe this image!</h3>}
-      </div>
-      {children}
-    </div>
-  );
-};

@@ -4,6 +4,7 @@ import { socket } from "~/assets/socket";
 import type { Image, Lines } from "~/assets/types";
 import DoneButton from "~/components/doneButton";
 import { useRedraw } from "~/hooks/useRedraw";
+import { CanvasLayout } from "./UI/CanvasLayout";
 
 interface Props {
   image: Image;
@@ -33,7 +34,9 @@ export default function TextBoard({ image, userId }: Props) {
     <>
       {image.image ? (
         <>
-          <Canvas image={image.image} />
+          <CanvasLayout>
+            <Canvas image={image.image} />
+          </CanvasLayout>
           <div className="flex justify-between">
             <input
               value={prompt}
@@ -44,14 +47,16 @@ export default function TextBoard({ image, userId }: Props) {
         </>
       ) : (
         <>
-          <div className="flex h-[80%] w-full flex-col justify-center gap-10 rounded-b-2xl bg-black/30 p-10 text-center">
-            {image.image && <canvas className="absolute z-20" />}
-            <h2>Write a prompt for someone to draw!</h2>
-            <input
-              value={prompt}
-              onChange={(event) => setPrompt(event.target.value)}
-            />
-          </div>
+          <CanvasLayout>
+            <div className="flex h-[80%] w-full flex-col justify-center gap-10 rounded-b-2xl bg-black/30 p-10 text-center">
+              {image.image && <canvas className="absolute z-20" />}
+              <h2>Write a prompt for someone to draw!</h2>
+              <input
+                value={prompt}
+                onChange={(event) => setPrompt(event.target.value)}
+              />
+            </div>
+          </CanvasLayout>
           <div className="flex justify-end">
             <DoneButton />
           </div>
