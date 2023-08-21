@@ -60,6 +60,12 @@ export default function Home() {
       setMessage(data.message);
     };
 
+    socket.emit("leave-room");
+    dispatchGame({
+      type: "reset",
+      data: null
+    })
+
     socket.on("user-joined", userJoined);
     socket.on("room-not-found", roomNotFound);
     socket.on("name-taken", nameTaken);

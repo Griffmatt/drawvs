@@ -36,7 +36,6 @@ export const useDraw = () => {
     return null;
   };
 
-
   useEffect(() => {
     const stopDrawing = () => {
       setIsDrawing(false);
@@ -99,3 +98,4 @@ export const useDraw = () => {
 
   return { startDrawing, canvasRef, lines };
 };
+

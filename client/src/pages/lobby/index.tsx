@@ -8,7 +8,6 @@ import { useGameContext } from "~/context/gameContext";
 export default function Lobby() {
   const router = useRouter();
   const { game, dispatchGame } = useGameContext();
-  console.log(game.users)
   const filler = Array.from({ length: 8 - game.users.length }, () => "Empty");
   const isAdmin = game.users.filter((user) => user.id === socket.id)[0]
     ?.isAdmin;

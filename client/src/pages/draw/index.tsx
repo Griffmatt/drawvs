@@ -1,9 +1,5 @@
 import React, { useEffect, useState } from "react";
 
-import DoneButton from "~/components/doneButton";
-import ToolSelector from "~/components/toolSelector";
-import LineFadeTools from "~/components/lineFadeTools";
-import ColorSelector from "~/components/colorSelector";
 import { useRouter } from "next/router";
 import { useGameContext } from "~/context/gameContext";
 import GameArea from "~/components/gameArea";
@@ -54,22 +50,12 @@ export default function Draw() {
   }, []);
 
   return (
-    <div className="grid h-full grid-cols-7 gap-6 p-6">
-      <div className="flex flex-col justify-center text-center">
-        <h2>1/{game.rounds}</h2>
-        <ColorSelector />
-      </div>
-      <div className="col-span-5 grid gap-2">
-        <GameArea />
-        <div className="flex justify-between">
-          <LineFadeTools />
-          <DoneButton />
-        </div>
-      </div>
-      <div className="flex flex-col justify-center text-center">
-        <h2>{time}</h2>
-        <ToolSelector />
-      </div>
+    <div className="relative grid h-full grid-cols-7 gap-6 p-6">
+      <GameArea />
+      <h2 className="absolute left-10 top-0">
+        {game.round}/{game.rounds}
+      </h2>
+      <h2 className="absolute right-10 top-0">{time}</h2>
     </div>
   );
 }

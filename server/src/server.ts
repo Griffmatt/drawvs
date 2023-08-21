@@ -121,7 +121,6 @@ io.on('connection', (socket) => {
     const roomId = usersRoom.get(socket.id)
     if (roomId) {
       const room = rooms.get(roomId)
-      console.log(room)
       if (room) {
         const updated = room.users.map((user) => {
           if (socket.id === user.id) {
@@ -130,7 +129,6 @@ io.on('connection', (socket) => {
           return user
         })
         rooms.set(roomId, { ...room, users: updated })
-        console.log(updated)
         if (updated.every((user) => user.done)) {
           const undo = room.users.map((user) => {
             return { ...user, done: false }

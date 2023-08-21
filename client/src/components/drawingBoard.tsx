@@ -31,11 +31,12 @@ export default function DrawingBoard({ image, userId }: Props) {
 
   useEffect(() => {
     const roundDone = () => {
+      const imageData = { ...image, userId: userId, image: lines }
       dispatchGame({
         type: "image",
-        data: { ...image, userId: userId, image: lines },
+        data: imageData ,
       });
-      socket.emit("send-image", { ...image, prompt: prompt });
+      socket.emit("send-image", imageData);
     };
     socket.on("round-done", roundDone);
     return () => {

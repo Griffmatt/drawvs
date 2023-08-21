@@ -50,11 +50,23 @@ type PayloadF = {
     id: number;
     prompt: string;
     image: Lines | null;
-    userId: string
+    userId: string;
   };
 };
 
-type Payload = PayloadA | PayloadB | PayloadC | PayloadD | PayloadE | PayloadF;
+type PayloadG = {
+  type: "reset";
+  data: null;
+};
+
+type Payload =
+  | PayloadA
+  | PayloadB
+  | PayloadC
+  | PayloadD
+  | PayloadE
+  | PayloadF
+  | PayloadG;
 
 type Game = {
   name: string;
@@ -66,6 +78,12 @@ type Game = {
 const gameContext = createContext({} as Context);
 
 export const useGameContext = () => useContext(gameContext);
+const initialState = {
+  name: "Normal",
+  users: [] as User[],
+  rounds: 0,
+  round: 1,
+};
 
 export const GameContextProvider = ({ children }: Props) => {
   const reducer = (state: Game, action: Payload) => {
@@ -84,33 +102,17 @@ export const GameContextProvider = ({ children }: Props) => {
         });
         return { ...state, rounds: data, users: usersInitImages };
       case "round":
-        console.log();
         return { ...state, round: state.round + data };
       case "image":
-        const userImages = state.users.map((user) => {
-          if (user.id === data.userId) {
-            const imageData = {
-              id: data.id,
-              prompt: data.prompt,
-              image: data.image
-            }
-            return { ...user, imageData };
-          }
-          return user;
-        });
-        return { ...state, users: userImages };
+        const updatedImages = updateImages(state.users, data);
+        return { ...state, users: updatedImages };
       case "all":
         return { ...state, name: data.name };
+      case "reset":
+        return initialState;
       default:
         return state;
     }
-  };
-
-  const initialState = {
-    name: "Normal",
-    users: [] as User[],
-    rounds: 0,
-    round: 1,
   };
 
   const [game, dispatchGame] = useReducer(reducer, initialState);
@@ -186,4 +188,40 @@ export const GameContextProvider = ({ children }: Props) => {
       {children}
     </gameContext.Provider>
   );
+};
+
+const updateImages = (
+  users: User[],
+  data: {
+    id: number;
+    prompt: string;
+    image: Lines | null;
+    userId: string;
+  }
+) => {
+  const userImages = users.map((user) => {
+    if (user.id === data.userId) {
+      const images = user.images.map((image) => {
+        if (image.id === data.id) {
+          return {
+            id: data.id,
+            prompt: data.prompt,
+            image: data.image,
+          };
+        }
+        if (image.id === data.id + 1) {
+          return {
+            ...image,
+            image: data.image,
+            prompt: data.prompt,
+          };
+        }
+        return image;
+      });
+      return { ...user, images: images };
+    }
+    return user;
+  });
+
+  return userImages;
 };
