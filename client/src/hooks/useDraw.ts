@@ -97,5 +97,5 @@ export const useDraw = () => {
     width,
   ]);
 
-  return { startDrawing, canvasRef };
+  return { startDrawing, canvasRef, lines };
 };

@@ -3,18 +3,20 @@ type User = {
   id: string;
   isAdmin: boolean;
   done: boolean;
-  images: {
-    id: number;
-    prompt: string;
-    image: Image | null;
-  }[];
+  images: Image[];
 };
 
-type Image = {
+type Lines = {
   x: number;
   y: number;
   color: string;
   width: number;
 }[][];
 
-export type { User, Image };
+type Image = {
+  id: number;
+  prompt: string;
+  image: Lines | null;
+};
+
+export type { User, Lines, Image };

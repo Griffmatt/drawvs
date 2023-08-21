@@ -7,7 +7,7 @@ import {
   useEffect,
 } from "react";
 import { socket } from "~/assets/socket";
-import type { Image, User } from "~/assets/types";
+import type { Lines, User } from "~/assets/types";
 
 interface Context {
   game: Game;
@@ -47,10 +47,10 @@ type PayloadE = {
 type PayloadF = {
   type: "image";
   data: {
-    userId: string;
     id: number;
     prompt: string;
-    image: Image | null;
+    image: Lines | null;
+    userId: string
   };
 };
 
@@ -76,12 +76,9 @@ export const GameContextProvider = ({ children }: Props) => {
       case "users":
         return { ...state, users: data };
       case "rounds":
-        const images = Array.from(
-          { length: Math.ceil(data / 2) },
-          (_, index) => {
-            return { id: index, prompt: "", image: null };
-          }
-        );
+        const images = Array.from({ length: Math.ceil(data) }, (_, index) => {
+          return { id: index, prompt: "", image: null };
+        });
         const usersInitImages = state.users.map((user) => {
           return { ...user, images: images };
         });
@@ -92,17 +89,12 @@ export const GameContextProvider = ({ children }: Props) => {
       case "image":
         const userImages = state.users.map((user) => {
           if (user.id === data.userId) {
-            const images = user.images.map((image) => {
-              if (image.id === data.id) {
-                return {
-                  id: data.id,
-                  prompt: data.prompt,
-                  image: data.image,
-                };
-              }
-              return image;
-            });
-            return { ...user, images };
+            const imageData = {
+              id: data.id,
+              prompt: data.prompt,
+              image: data.image
+            }
+            return { ...user, imageData };
           }
           return user;
         });
@@ -160,10 +152,10 @@ export const GameContextProvider = ({ children }: Props) => {
     };
 
     const receiveImage = (data: {
-      userId: string;
       id: number;
       prompt: string;
-      image: Image | null;
+      image: Lines | null;
+      userId: string;
     }) => {
       dispatchGame({
         type: "image",
