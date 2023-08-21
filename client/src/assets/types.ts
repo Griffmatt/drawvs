@@ -3,7 +3,6 @@ type User = {
   id: string;
   isAdmin: boolean;
   done: boolean;
-  images: Image[];
 };
 
 type Lines = {
@@ -19,4 +18,9 @@ type Image = {
   image: Lines | null;
 };
 
-export type { User, Lines, Image };
+type Images = {
+  userId: string;
+  images: Image[];
+};
+
+export type { User, Lines, Image, Images };

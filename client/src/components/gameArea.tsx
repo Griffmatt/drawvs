@@ -16,10 +16,10 @@ export default function GameArea() {
   const length = game.users.length;
   const userIndex = index + game.round - 1;
   const offSet = userIndex >= length ? userIndex - length : userIndex;
-  const user = game.users[offSet];
-  const image = user?.images[game.round - 1];
+  const userImages = game.images[offSet];
+  const image = userImages?.images[game.round - 1];
 
-  if (!image || !user) return;
+  if (!image || !userImages) return;
 
   return (
     <>
@@ -30,7 +30,7 @@ export default function GameArea() {
           </div>
           <div className="col-span-5 grid gap-2">
             <Layout prompt={image.prompt} round={game.round}>
-              <DrawingBoard image={image} userId={user.id} />
+              <DrawingBoard image={image} userId={userImages.userId} />
               <div className="flex justify-between">
                 <LineFadeTools />
                 <DoneButton />
@@ -44,7 +44,7 @@ export default function GameArea() {
       ) : (
         <div className="col-span-5 col-start-2 grid gap-2">
           <Layout round={game.round}>
-            <TextBoard image={image} userId={user.id} />
+            <TextBoard image={image} userId={userImages.userId} />
           </Layout>
         </div>
       )}

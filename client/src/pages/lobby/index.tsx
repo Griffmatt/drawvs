@@ -88,7 +88,6 @@ export default function Lobby() {
             <h3>Game Modes</h3>
             <div className="grid gap-2">
               {GAME_MODES.map((mode) => {
-                console.log();
                 return (
                   <button
                     className={`flex justify-center rounded bg-white/20 p-10 align-middle hover:bg-white/10 ${

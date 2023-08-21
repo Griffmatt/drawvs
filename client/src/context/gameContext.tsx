@@ -7,7 +7,7 @@ import {
   useEffect,
 } from "react";
 import { socket } from "~/assets/socket";
-import type { Lines, User } from "~/assets/types";
+import type { Images, Lines, User } from "~/assets/types";
 
 interface Context {
   game: Game;
@@ -59,6 +59,14 @@ type PayloadG = {
   data: null;
 };
 
+type PayloadH = {
+  type: "admin";
+  data: {
+    old: string;
+    new: string;
+  };
+};
+
 type Payload =
   | PayloadA
   | PayloadB
@@ -66,13 +74,15 @@ type Payload =
   | PayloadD
   | PayloadE
   | PayloadF
-  | PayloadG;
+  | PayloadG
+  | PayloadH;
 
 type Game = {
   name: string;
   users: User[];
   rounds: number;
   round: number;
+  images: Images[];
 };
 
 const gameContext = createContext({} as Context);
@@ -83,6 +93,7 @@ const initialState = {
   users: [] as User[],
   rounds: 0,
   round: 1,
+  images: [] as Images[],
 };
 
 export const GameContextProvider = ({ children }: Props) => {
@@ -98,14 +109,14 @@ export const GameContextProvider = ({ children }: Props) => {
           return { id: index, prompt: "", image: null };
         });
         const usersInitImages = state.users.map((user) => {
-          return { ...user, images: images };
+          return { userId: user.id, images: images };
         });
-        return { ...state, rounds: data, users: usersInitImages };
+        return { ...state, rounds: data, images: usersInitImages };
       case "round":
         return { ...state, round: state.round + data };
       case "image":
-        const updatedImages = updateImages(state.users, data);
-        return { ...state, users: updatedImages };
+        const updatedImages = updateImages(state.images, data);
+        return { ...state, images: updatedImages };
       case "all":
         return { ...state, name: data.name };
       case "reset":
@@ -165,6 +176,13 @@ export const GameContextProvider = ({ children }: Props) => {
       });
     };
 
+    const updateAdmin = (data: { old: string; new: string }) => {
+      dispatchGame({
+        type: "admin",
+        data: data,
+      });
+    };
+
     socket.on("update-users", updateUsers);
     socket.on("update-name", updateGame);
     socket.on("request-data", sendData);
@@ -172,6 +190,7 @@ export const GameContextProvider = ({ children }: Props) => {
     socket.on("kicked", kicked);
     socket.on("start-game", startGame);
     socket.on("receive-image", receiveImage);
+    socket.on("update-admin", updateAdmin);
 
     return () => {
       socket.off("update-users", updateUsers);
@@ -191,7 +210,7 @@ export const GameContextProvider = ({ children }: Props) => {
 };
 
 const updateImages = (
-  users: User[],
+  Images: Images[],
   data: {
     id: number;
     prompt: string;
@@ -199,8 +218,8 @@ const updateImages = (
     userId: string;
   }
 ) => {
-  const userImages = users.map((user) => {
-    if (user.id === data.userId) {
+  const userImages = Images.map((user) => {
+    if (user.userId === data.userId) {
       const images = user.images.map((image) => {
         if (image.id === data.id) {
           return {

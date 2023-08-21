@@ -172,23 +172,12 @@ io.on('connection', (socket) => {
     }
   })
 
+  //need to figure out way to make game not crash when someone leaves and way for someone to rejoin as well as steps to take when final round is done
+  //need to add final screen to show off images and prompts and then send users back to lobby
   socket.on('disconnect', () => {
     const roomId = usersRoom.get(socket.id)
     if (roomId) {
-      const room = rooms.get(roomId)
       const roomUpdated = removeUser(rooms, roomId, socket.id)
-      if (room) {
-        if (room.gameStarted) {
-          const user = room.users.filter((user) => user.id === socket.id)[0]
-          if (user?.isAdmin && roomUpdated && roomUpdated.users[0]) {
-            roomUpdated.users[0].isAdmin = true
-            roomUpdated.users.push({ ...user, isAdmin: false })
-            socket.to(roomId).emit('update-users', roomUpdated.users)
-            rooms.set(roomId, roomUpdated)
-          }
-          return
-        }
-      }
       if (roomUpdated) {
         const hasAdmin = roomUpdated.users.some((user) => user.isAdmin)
         socket.leave(roomId)
