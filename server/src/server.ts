@@ -147,12 +147,12 @@ io.on('connection', (socket) => {
   socket.on("next-set", () => {
     const roomId = usersRoom.get(socket.id)
     if (!roomId) return
-    socket.to(roomId).emit("next-set")
+    socket.to(roomId).emit("next-set-res")
   });
   socket.on("next-image", () => {
     const roomId = usersRoom.get(socket.id)
     if (!roomId) return
-    socket.to(roomId).emit("next-image")
+    socket.to(roomId).emit("next-image-res")
   });
 
   socket.on('leave-room', () => {

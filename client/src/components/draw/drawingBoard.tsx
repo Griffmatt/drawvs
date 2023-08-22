@@ -31,19 +31,20 @@ export default function DrawingBoard({ image, userId }: Props) {
 
   useEffect(() => {
     const roundDone = () => {
-      const ctx = canvasRef.current?.getContext("2d");
-      const imageData = { ...image, userId: userId, image: lines}
+      const ctx = canvasRef.current
+      if (!ctx) return;
+      const imageData = { ...image, userId: userId, image: ctx };
       dispatchGame({
         type: "image",
-        data: imageData ,
+        data: imageData,
       });
-      socket.emit("send-image", imageData);
+      socket.emit("send-image", {...imageData, image: ctx.toDataURL()});
     };
     socket.on("round-done", roundDone);
     return () => {
       socket.off("round-done", roundDone);
     };
-  }, [dispatchGame, image, lines, userId]);
+  }, [canvasRef, dispatchGame, image, lines, userId]);
 
   return (
     <div className="h-[80%] w-full rounded-b-2xl" ref={containerRef}>

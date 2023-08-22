@@ -41,13 +41,13 @@ export default function Show() {
       setImageIndex((prev) => prev + 1);
     };
 
-    socket.on("next-set", nextSet);
-    socket.on("next-image", nextImage);
+    socket.on("next-set-res", nextSet);
+    socket.on("next-image-res", nextImage);
 
     return () => {
-      socket.off("next-set", nextSet);
-      socket.off("next-image", nextImage);
-    }
+      socket.off("next-set-res", nextSet);
+      socket.off("next-image-res", nextImage);
+    };
   }, []);
 
   if (!images) return;
@@ -68,7 +68,7 @@ export default function Show() {
               isAdmin={isAdmin}
             />
           </div>
-          <div className="flex justify-end col-span-full">
+          <div className="col-span-full flex justify-end">
             {imageIndex === images.length - 1 && (
               <button
                 onClick={handleNextSet}
@@ -103,19 +103,31 @@ const ImagesShown = ({
     socket.emit("next-image");
   };
   return (
-    <div className="overflow-y-scroll flex flex-col gap-2 p-4 h-full">
+    <div className="flex h-full flex-col gap-2 overflow-y-scroll p-4">
       {images.map((image, index) => {
         if (index > imageIndex + 1) return;
         if (index > imageIndex)
           return (
-            <button onClick={handleNext} disabled={!isAdmin} className="bg-white/30 py-2 px-4 w-fit h-fit rounded">
+            <button
+              onClick={handleNext}
+              disabled={!isAdmin}
+              className="h-fit w-fit rounded bg-white/30 px-4 py-2"
+            >
               ...
             </button>
           );
-        if (index % 2 === 0) return <div key={image.id} className="bg-white/30 py-2 px-4 w-fit h-fit rounded">{image.prompt}</div>;
+        if (index % 2 === 0)
+          return (
+            <div
+              key={image.id}
+              className="h-fit w-fit rounded bg-white/30 px-4 py-2"
+            >
+              {image.prompt}
+            </div>
+          );
         return (
           <div key={image.id} className="aspect-[5/3.2]">
-            <Canvas image={image.image} />
+            {image.image && <Canvas image={image.image} />}
           </div>
         );
       })}

@@ -7,7 +7,8 @@ import {
   useEffect,
 } from "react";
 import { socket } from "~/assets/socket";
-import type { Images, Lines, User } from "~/assets/types";
+import type { Images, Image, User } from "~/assets/types";
+import { loadImage } from "~/helpers/loadImage";
 
 interface Context {
   game: Game;
@@ -44,14 +45,11 @@ type PayloadE = {
   data: number;
 };
 
+type imageWithId = Image & { userId: string };
+
 type PayloadF = {
   type: "image";
-  data: {
-    id: number;
-    prompt: string;
-    image: Lines | null;
-    userId: string;
-  };
+  data: imageWithId;
 };
 
 type PayloadG = {
@@ -115,7 +113,7 @@ export const GameContextProvider = ({ children }: Props) => {
         });
         return { ...state, rounds: data, images: usersInitImages };
       case "round":
-        const newRound = state.round + data
+        const newRound = state.round + data;
         return { ...state, round: newRound };
       case "image":
         const updatedImages = updateImages(state.images, data);
@@ -169,12 +167,18 @@ export const GameContextProvider = ({ children }: Props) => {
     const receiveImage = (data: {
       id: number;
       prompt: string;
-      image: Lines | null;
+      image: string;
       userId: string;
     }) => {
+      const newImage = loadImage(data.image);
+      console.log(newImage)
+      const newData = {
+        ...data,
+        image: newImage,
+      }
       dispatchGame({
         type: "image",
-        data: data,
+        data: newData,
       });
     };
 
@@ -211,15 +215,7 @@ export const GameContextProvider = ({ children }: Props) => {
   );
 };
 
-const updateImages = (
-  Images: Images[],
-  data: {
-    id: number;
-    prompt: string;
-    image: Lines | null;
-    userId: string;
-  }
-) => {
+const updateImages = (Images: Images[], data: imageWithId) => {
   const userImages = Images.map((user) => {
     if (user.userId === data.userId) {
       const images = user.images.map((image) => {

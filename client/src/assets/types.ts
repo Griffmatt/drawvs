@@ -15,7 +15,7 @@ type Lines = {
 type Image = {
   id: number;
   prompt: string;
-  image: Lines | null;
+  image: HTMLCanvasElement |  HTMLImageElement | null;
 };
 
 type Images = {

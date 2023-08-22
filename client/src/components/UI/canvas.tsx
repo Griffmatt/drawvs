@@ -1,19 +1,23 @@
 import { useState, useRef, useLayoutEffect } from "react";
-import type { Lines } from "~/assets/types";
-import { useRedraw } from "~/hooks/useRedraw";
 
 interface Props {
-  image: Lines | null;
+  image: HTMLCanvasElement | HTMLImageElement;
 }
 
 export const Canvas = ({ image }: Props) => {
   const [dimensions, setDimensions] = useState({ height: 0, width: 0 });
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const { canvasRef } = useRedraw(image, dimensions.width, dimensions.height);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useLayoutEffect(() => {
+    const ctx = canvasRef.current?.getContext("2d");
+    ctx?.clearRect(0, 0, dimensions.width, dimensions.height);
+    ctx?.drawImage(image, 0, 0, dimensions.width, dimensions.height);
+
+  }, [dimensions.height, dimensions.width, image]);
 
   useLayoutEffect(() => {
     const container = containerRef.current;
-
     const updateSize = () => {
       setDimensions({
         height: container?.offsetHeight ?? 0,
@@ -24,6 +28,7 @@ export const Canvas = ({ image }: Props) => {
     updateSize();
     return () => window.removeEventListener("resize", updateSize);
   }, []);
+
   return (
     <>
       <div className="h-full w-full rounded-b-2xl" ref={containerRef}>
