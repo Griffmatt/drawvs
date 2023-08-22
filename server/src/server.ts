@@ -45,6 +45,7 @@ io.on('connection', (socket) => {
   socket.on('join-room', (data: { name: string; code: string }) => {
     const room = rooms.get(data.code)
     if (room && room.users.length < 8) {
+      if(room.gameStarted) return
       socket.join(data.code)
 
       const nameExists = room.users.some(

@@ -14,6 +14,10 @@ export const Canvas = ({ image }: Props) => {
     ctx?.clearRect(0, 0, dimensions.width, dimensions.height);
     ctx?.drawImage(image, 0, 0, dimensions.width, dimensions.height);
 
+    image.onload = () => {
+      ctx?.clearRect(0, 0, dimensions.width, dimensions.height);
+      ctx?.drawImage(image, 0, 0, dimensions.width, dimensions.height);
+    };
   }, [dimensions.height, dimensions.width, image]);
 
   useLayoutEffect(() => {
