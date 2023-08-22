@@ -97,6 +97,8 @@ const initialState = {
 };
 
 export const GameContextProvider = ({ children }: Props) => {
+  const router = useRouter();
+
   const reducer = (state: Game, action: Payload) => {
     const { type, data } = action;
     switch (type) {
@@ -113,7 +115,8 @@ export const GameContextProvider = ({ children }: Props) => {
         });
         return { ...state, rounds: data, images: usersInitImages };
       case "round":
-        return { ...state, round: state.round + data };
+        const newRound = state.round + data
+        return { ...state, round: newRound };
       case "image":
         const updatedImages = updateImages(state.images, data);
         return { ...state, images: updatedImages };
@@ -127,7 +130,6 @@ export const GameContextProvider = ({ children }: Props) => {
   };
 
   const [game, dispatchGame] = useReducer(reducer, initialState);
-  const router = useRouter();
 
   useEffect(() => {
     const updateUsers = (data: User[]) => {

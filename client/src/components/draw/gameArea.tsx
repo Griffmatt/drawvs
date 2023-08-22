@@ -1,11 +1,11 @@
 import { useGameContext } from "~/context/gameContext";
 import DrawingBoard from "./drawingBoard";
-import DoneButton from "~/components/doneButton";
-import ToolSelector from "~/components/toolSelector";
-import LineFadeTools from "~/components/lineFadeTools";
-import ColorSelector from "~/components/colorSelector";
+import DoneButton from "~/components/UI/doneButton";
+import ToolSelector from "~/components/draw/toolSelector";
+import LineFadeTools from "~/components/draw/lineFadeTools";
+import ColorSelector from "~/components/draw/colorSelector";
 import TextBoard from "./textBoard";
-import { CanvasLayout } from "./UI/CanvasLayout";
+import { CanvasLayout } from "../UI/CanvasLayout";
 import { socket } from "~/assets/socket";
 
 export default function GameArea() {
