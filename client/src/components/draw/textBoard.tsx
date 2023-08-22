@@ -35,7 +35,9 @@ export default function TextBoard({ image, userId }: Props) {
       {image.image ? (
         <>
           <CanvasLayout>
+            <div className="h-[80%] w-full">
             <Canvas image={image.image} />
+            </div>
           </CanvasLayout>
           <div className="flex justify-between">
             <input

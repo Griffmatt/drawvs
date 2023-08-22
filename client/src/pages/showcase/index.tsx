@@ -1,16 +1,54 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import { Canvas } from "~/components/UI/canvas";
-import BackButton from "~/components/UI/doneButton";
+import BackButton from "~/components/UI/backButton";
 import { UserList } from "~/components/userList";
 import { useGameContext } from "~/context/gameContext";
 import type { Image } from "~/assets/types";
+import { useRouter } from "next/router";
+import { socket } from "~/assets/socket";
 
 export default function Show() {
+  const router = useRouter();
   const { game } = useGameContext();
   const [index, setIndex] = useState(0);
+  const [imageIndex, setImageIndex] = useState(0);
 
   const images = game.images[index]?.images;
+
+  const isAdmin =
+    game.users.filter((user) => user.id === socket.id)[0]?.isAdmin ?? false;
+
+  useEffect(() => {
+    if (game.users.length === 0) {
+      void router.replace("/");
+    }
+  }, [game.users.length, router]);
+
+  const handleNextSet = () => {
+    setImageIndex(0);
+    setIndex((prev) => prev + 1);
+    socket.emit("next-set");
+  };
+
+  useEffect(() => {
+    const nextSet = () => {
+      setImageIndex(0);
+      setIndex((prev) => prev + 1);
+    };
+
+    const nextImage = () => {
+      setImageIndex((prev) => prev + 1);
+    };
+
+    socket.on("next-set", nextSet);
+    socket.on("next-image", nextImage);
+
+    return () => {
+      socket.off("next-set", nextSet);
+      socket.off("next-image", nextImage);
+    }
+  }, []);
 
   if (!images) return;
 
@@ -21,9 +59,25 @@ export default function Show() {
         <h2>Showcase</h2>
         <div className="grid grid-cols-3 gap-8">
           <UserList userId={game.images[index]?.userId} />
-          <div className="col-span-2 rounded bg-black/20 p-4 aspect-square">
+          <div className="col-span-2 aspect-[5/4] rounded bg-black/20 p-4">
             <h2>Drawvs</h2>
-            <ImagesShown setIndex={setIndex} images={images} />
+            <ImagesShown
+              setImageIndex={setImageIndex}
+              imageIndex={imageIndex}
+              images={images}
+              isAdmin={isAdmin}
+            />
+          </div>
+          <div className="flex justify-end col-span-full">
+            {imageIndex === images.length - 1 && (
+              <button
+                onClick={handleNextSet}
+                className="h-fit rounded bg-black/20 p-4"
+                disabled={!isAdmin}
+              >
+                next set
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -33,45 +87,38 @@ export default function Show() {
 
 interface ImagesShownProps {
   images: Image[];
-  setIndex: React.Dispatch<React.SetStateAction<number>>;
+  imageIndex: number;
+  setImageIndex: React.Dispatch<React.SetStateAction<number>>;
+  isAdmin: boolean;
 }
 
-const ImagesShown = ({ setIndex, images }: ImagesShownProps) => {
-  const [imageIndex, setImageIndex] = useState(0);
-
-  const handleNextSet = () => {
-    setImageIndex(0);
-    setIndex((prev) => prev + 1);
-  };
-
+const ImagesShown = ({
+  setImageIndex,
+  imageIndex,
+  images,
+  isAdmin,
+}: ImagesShownProps) => {
   const handleNext = () => {
     setImageIndex((prev) => prev + 1);
+    socket.emit("next-image");
   };
   return (
-    <>
-      <div className="overflow-y-scroll">
-        {images.map((image, index) => {
-          if (index > imageIndex + 1) return;
-          if (index > imageIndex)
-            return <button onClick={handleNext}>...</button>;
-          if (index % 2 === 0) return <div key={image.id}>{image.prompt}</div>;
+    <div className="overflow-y-scroll flex flex-col gap-2 p-4 h-full">
+      {images.map((image, index) => {
+        if (index > imageIndex + 1) return;
+        if (index > imageIndex)
           return (
-            <div key={image.id} className="aspect-[5/4] w-full">
-              <Canvas image={image.image} />
-            </div>
+            <button onClick={handleNext} disabled={!isAdmin} className="bg-white/30 py-2 px-4 w-fit h-fit rounded">
+              ...
+            </button>
           );
-        })}
-      </div>
-      <div className="flex justify-end">
-        {imageIndex === images.length - 1 && (
-          <button
-            onClick={handleNextSet}
-            className="h-fit rounded bg-black/20 p-4"
-          >
-            next set
-          </button>
-        )}
-      </div>
-    </>
+        if (index % 2 === 0) return <div key={image.id} className="bg-white/30 py-2 px-4 w-fit h-fit rounded">{image.prompt}</div>;
+        return (
+          <div key={image.id} className="aspect-[5/3.2]">
+            <Canvas image={image.image} />
+          </div>
+        );
+      })}
+    </div>
   );
 };

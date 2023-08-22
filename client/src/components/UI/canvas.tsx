@@ -26,7 +26,7 @@ export const Canvas = ({ image }: Props) => {
   }, []);
   return (
     <>
-      <div className="h-[80%] w-full rounded-b-2xl" ref={containerRef}>
+      <div className="h-full w-full rounded-b-2xl" ref={containerRef}>
         <canvas
           className="absolute z-20 bg-white"
           height={dimensions.height}

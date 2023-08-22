@@ -144,6 +144,17 @@ io.on('connection', (socket) => {
     socket.to(roomId).emit('receive-image', data)
   })
 
+  socket.on("next-set", () => {
+    const roomId = usersRoom.get(socket.id)
+    if (!roomId) return
+    socket.to(roomId).emit("next-set")
+  });
+  socket.on("next-image", () => {
+    const roomId = usersRoom.get(socket.id)
+    if (!roomId) return
+    socket.to(roomId).emit("next-image")
+  });
+
   socket.on('leave-room', () => {
     const roomId = usersRoom.get(socket.id)
     if (!roomId) return
@@ -169,7 +180,6 @@ io.on('connection', (socket) => {
   })
 
   //find way for someone to rejoin as well as steps to take when final round is done
-  //need to add final screen to show off images and prompts and then send users back to lobby
   socket.on('disconnect', () => {
     const roomId = usersRoom.get(socket.id)
     if (!roomId) return

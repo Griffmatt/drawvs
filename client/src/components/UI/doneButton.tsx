@@ -1,6 +1,6 @@
 import { socket } from "~/assets/socket";
 
-export default function BackButton() {
+export default function DoneButton() {
 const handleClick = () => {
     socket.emit("done");
   };

@@ -39,7 +39,7 @@ export default function Lobby() {
         <h2 className="h-fit">Lobby</h2>
         <div className="grid grid-cols-3 gap-8">
           <UserList />
-          <div className="col-span-2 rounded  bg-black/20 p-4">
+          <div className="col-span-2 rounded  bg-black/20 p-4 aspect[5/4] overflow-y-hidden">
             <h3>Game Modes</h3>
             <div className="grid gap-2">
               {GAME_MODES.map((mode) => {

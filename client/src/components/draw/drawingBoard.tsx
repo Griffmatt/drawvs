@@ -31,7 +31,8 @@ export default function DrawingBoard({ image, userId }: Props) {
 
   useEffect(() => {
     const roundDone = () => {
-      const imageData = { ...image, userId: userId, image: lines }
+      const ctx = canvasRef.current?.getContext("2d");
+      const imageData = { ...image, userId: userId, image: lines}
       dispatchGame({
         type: "image",
         data: imageData ,
