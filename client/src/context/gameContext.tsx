@@ -7,7 +7,7 @@ import {
   useEffect,
 } from "react";
 import { socket } from "~/assets/socket";
-import type { Images, Image, User } from "~/assets/types";
+import type { Images, Image, User } from "~/assets/types/types";
 import { loadImage } from "~/helpers/loadImage";
 
 interface Context {

@@ -1,6 +1,6 @@
 import { useRef, useLayoutEffect, useState, useEffect } from "react";
 import { useDraw } from "~/hooks/useDraw";
-import type { Image } from "~/assets/types";
+import type { Image } from "~/assets/types/types";
 import { useGameContext } from "~/context/gameContext";
 import { socket } from "~/assets/socket";
 
@@ -31,14 +31,14 @@ export default function DrawingBoard({ image, userId }: Props) {
 
   useEffect(() => {
     const roundDone = () => {
-      const ctx = canvasRef.current
+      const ctx = canvasRef.current;
       if (!ctx) return;
       const imageData = { ...image, userId: userId, image: ctx };
       dispatchGame({
         type: "image",
         data: imageData,
       });
-      socket.emit("send-image", {...imageData, image: ctx.toDataURL()});
+      socket.emit("send-image", { ...imageData, image: ctx.toDataURL() });
     };
     socket.on("round-done", roundDone);
     return () => {

@@ -2,25 +2,25 @@ import { type FormEvent, useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { socket } from "~/assets/socket";
 import { useGameContext } from "~/context/gameContext";
-import type { User } from "~/assets/types";
+import type { User } from "~/assets/types/types";
 
 export default function Home() {
   const [selected, setSelected] = useState<"Create" | "Join">("Create");
   const [message, setMessage] = useState("blank");
-  const[name, setName] = useState("")
-  const [code, setCode] = useState("")
+  const [name, setName] = useState("");
+  const [code, setCode] = useState("");
   const { dispatchGame } = useGameContext();
   const router = useRouter();
 
   const handleNameChange = (value: string) => {
     if (value.length > 12) return;
-    setMessage("blank")
+    setMessage("blank");
     setName(value);
   };
 
   const handleCodeChange = (value: string) => {
     if (value.length > 6) return;
-    setMessage("blank")
+    setMessage("blank");
     setCode(value);
   };
 
@@ -42,9 +42,7 @@ export default function Home() {
   };
 
   useEffect(() => {
-    const userJoined = (
-      data: User[]
-    ) => {
+    const userJoined = (data: User[]) => {
       dispatchGame({
         type: "users",
         data: data,
@@ -63,8 +61,8 @@ export default function Home() {
     socket.emit("leave-room");
     dispatchGame({
       type: "reset",
-      data: null
-    })
+      data: null,
+    });
 
     socket.on("user-joined", userJoined);
     socket.on("room-not-found", roomNotFound);
@@ -124,7 +122,13 @@ export default function Home() {
                 <button className="w-full rounded border-2 border-white bg-slate-300/20 px-2 py-4 text-3xl font-extrabold">
                   {selected === "Create" ? "Start" : "Join"}
                 </button>
-                <h3 className={`${message === "blank" ? "text-transparent": "text-red-600"}`}>{message}</h3>
+                <h3
+                  className={`${
+                    message === "blank" ? "text-transparent" : "text-red-600"
+                  }`}
+                >
+                  {message}
+                </h3>
               </div>
             </form>
           </div>

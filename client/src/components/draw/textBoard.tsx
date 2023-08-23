@@ -1,7 +1,7 @@
 import { useGameContext } from "~/context/gameContext";
 import { useEffect, useState } from "react";
 import { socket } from "~/assets/socket";
-import type { Image } from "~/assets/types";
+import type { Image } from "~/assets/types/types";
 import DoneButton from "~/components/UI/doneButton";
 import { CanvasLayout } from "../UI/CanvasLayout";
 import { Canvas } from "../UI/canvas";
@@ -36,7 +36,7 @@ export default function TextBoard({ image, userId }: Props) {
         <>
           <CanvasLayout>
             <div className="h-[80%] w-full">
-            <Canvas image={image.image} />
+              <Canvas image={image.image} />
             </div>
           </CanvasLayout>
           <div className="flex justify-between">
@@ -67,5 +67,3 @@ export default function TextBoard({ image, userId }: Props) {
     </>
   );
 }
-
-

@@ -4,7 +4,7 @@ import { Canvas } from "~/components/UI/canvas";
 import BackButton from "~/components/UI/backButton";
 import { UserList } from "~/components/userList";
 import { useGameContext } from "~/context/gameContext";
-import type { Image } from "~/assets/types";
+import type { Image } from "~/assets/types/types";
 import { useRouter } from "next/router";
 import { socket } from "~/assets/socket";
 
