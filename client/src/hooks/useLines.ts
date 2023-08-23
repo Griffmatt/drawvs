@@ -45,19 +45,27 @@ export const useLines = (
         ctx.clearRect(0, 0, width, height);
 
         linesSlice.forEach((line) => {
-          let previous: { x: null; y: null } | { x: number; y: number } = {
+          let previous: { x: number | null; y: number | null } = {
             x: null,
             y: null,
           };
           line.forEach((dot) => {
-            ctx.lineCap = "round";
-            ctx.lineJoin = "round";
-            ctx.strokeStyle = dot.color;
-            ctx.lineWidth = dot.width;
+
             ctx.beginPath();
-            ctx.moveTo(previous.x ?? dot.x, previous.y ?? dot.y);
-            ctx.lineTo(dot.x, dot.y);
-            ctx.stroke();
+            //first point creates dot so when you click and unclick without moving mouse dot is still drawn
+            if (previous.x && previous.y) {
+              ctx.lineCap = "round";
+              ctx.lineJoin = "round";
+              ctx.strokeStyle = dot.color;
+              ctx.lineWidth = dot.width;
+              ctx.moveTo(previous.x, previous.y);
+              ctx.lineTo(dot.x, dot.y);
+              ctx.stroke();
+            } else {
+              ctx.fillStyle = dot.color
+              ctx.arc(dot.x, dot.y, dot.width/2, 0, 2 * Math.PI);
+              ctx.fill()
+            }
             previous = { x: dot.x, y: dot.y };
           });
           previous = {

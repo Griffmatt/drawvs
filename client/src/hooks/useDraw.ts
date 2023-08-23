@@ -15,9 +15,27 @@ export const useDraw = () => {
     ctx
   );
 
-  const startDrawing = () => {
+  const startDrawing = (event: MouseEvent) => {
     setIsDrawing(true);
-    handleLines([...lines, []]);
+    if (tool === "Draw" || tool === "Erase") {
+      const selectedColor = tool === "Erase" ? "#FFFFFF" : color.code;
+      const position = getPosition(event.clientX, event.clientY);
+      if (!position) return;
+      if (tool === "Erase" && lines.length === 1) {
+        handleLines([]);
+        return;
+      }
+      handleLines([
+        ...lines,
+        [
+          {
+            ...position,
+            color: selectedColor,
+            width,
+          },
+        ],
+      ]);
+    }
   };
 
   const getPosition = (clientX: number, clientY: number) => {
@@ -38,26 +56,12 @@ export const useDraw = () => {
     };
 
     const draw = (event: MouseEvent) => {
-      if (isDrawing && ctx) {
+      if (isDrawing) {
         if (tool === "Draw" || tool === "Erase") {
           const selectedColor = tool === "Erase" ? "#FFFFFF" : color.code;
-          ctx.lineCap = "round";
-          ctx.lineJoin = "round";
-          ctx.strokeStyle = selectedColor;
-          ctx.lineWidth = width;
-          ctx.beginPath();
           const position = getPosition(event.clientX, event.clientY);
           if (!position) return;
-          ctx.moveTo(position.x, position.y);
-          ctx.lineTo(position.x, position.y);
-          ctx.stroke();
           if (tool === "Erase" && lines.length === 1) {
-            ctx.clearRect(
-              0,
-              0,
-              canvasRef.current?.width ?? 0,
-              canvasRef.current?.height ?? 0
-            );
             handleLines([]);
             return;
           }
