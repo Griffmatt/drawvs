@@ -11,10 +11,12 @@ import { socket } from "~/assets/socket";
 export default function Show() {
   const router = useRouter();
   const { game } = useGameContext();
-  const [index, setIndex] = useState(0);
+  const [roundIndex, setRoundIndex] = useState(0);
   const [imageIndex, setImageIndex] = useState(0);
 
-  const images = game.images[index]?.images;
+  const images = game.images[roundIndex]?.images;
+  const finalImageReached = game.rounds === imageIndex + 1;
+  const finalSRoundReached = game.images.length === roundIndex + 1;
 
   const isAdmin =
     game.users.filter((user) => user.id === socket.id)[0]?.isAdmin ?? false;
@@ -25,22 +27,20 @@ export default function Show() {
     }
   }, [game.users.length, router]);
 
-  const handleNextSet = () => {
+  const handleNextRound = () => {
     setImageIndex(0);
-    setIndex((prev) => prev + 1);
-    console.log(imageIndex, images?.length);
-    if (index + 1 === images?.length) {
+    setRoundIndex((prev) => prev + 1);
+    if (finalSRoundReached) {
       void router.replace("/lobby");
-      socket.emit("end-game");
     }
     socket.emit("next-set");
   };
 
   useEffect(() => {
-    const nextSet = () => {
+    const nextRound = () => {
       setImageIndex(0);
-      setIndex((prev) => prev + 1);
-      if (index + 1 === images?.length) {
+      setRoundIndex((prev) => prev + 1);
+      if (finalSRoundReached) {
         void router.replace("/lobby");
       }
     };
@@ -48,14 +48,14 @@ export default function Show() {
     const nextImage = () => {
       setImageIndex((prev) => prev + 1);
     };
-    socket.on("next-set-res", nextSet);
+    socket.on("next-set-res", nextRound);
     socket.on("next-image-res", nextImage);
 
     return () => {
-      socket.off("next-set-res", nextSet);
+      socket.off("next-set-res", nextRound);
       socket.off("next-image-res", nextImage);
     };
-  }, [images?.length, index, router]);
+  }, [finalSRoundReached, roundIndex, router]);
 
   if (!images) return;
 
@@ -65,7 +65,7 @@ export default function Show() {
         <BackButton />
         <h2>Showcase</h2>
         <div className="grid grid-cols-3 gap-8">
-          <UserList userId={game.images[index]?.userId} />
+          <UserList userId={game.images[roundIndex]?.userId} />
           <div className="col-span-2 aspect-[5/4] rounded bg-black/20 p-4">
             <h2>Drawvs</h2>
             <ImagesShown
@@ -76,13 +76,13 @@ export default function Show() {
             />
           </div>
           <div className="col-span-full flex justify-end">
-            {imageIndex === images.length - 1 && (
+            {finalImageReached && (
               <button
-                onClick={handleNextSet}
+                onClick={handleNextRound}
                 className="h-fit rounded bg-black/20 p-4"
                 disabled={!isAdmin}
               >
-                next set
+                {finalSRoundReached ? "Finish" : "next set"}
               </button>
             )}
           </div>

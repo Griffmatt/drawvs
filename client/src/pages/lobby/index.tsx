@@ -18,6 +18,13 @@ export default function Lobby() {
     }
   }, [game.users.length, router]);
 
+  useEffect(() => {
+    dispatchGame({
+      type: "reset-game",
+      data: null,
+    });
+  }, [dispatchGame]);
+
   const handleGameChange = (mode: string) => {
     dispatchGame({
       type: "gameName",
@@ -39,7 +46,7 @@ export default function Lobby() {
         <h2 className="h-fit">Lobby</h2>
         <div className="grid grid-cols-3 gap-8">
           <UserList />
-          <div className="col-span-2 rounded  bg-black/20 p-4 aspect[5/4] overflow-y-hidden">
+          <div className="aspect[5/4] col-span-2  overflow-y-hidden rounded bg-black/20 p-4">
             <h3>Game Modes</h3>
             <div className="grid gap-2">
               {GAME_MODES.map((mode) => {

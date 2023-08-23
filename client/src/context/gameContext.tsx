@@ -53,7 +53,7 @@ type PayloadF = {
 };
 
 type PayloadG = {
-  type: "reset";
+  type: "reset" | "reset-game";
   data: null;
 };
 
@@ -122,6 +122,8 @@ export const GameContextProvider = ({ children }: Props) => {
         return { ...state, name: data.name };
       case "reset":
         return initialState;
+      case "reset-game":
+        return { ...initialState, users: state.users };
       default:
         return state;
     }
@@ -174,7 +176,7 @@ export const GameContextProvider = ({ children }: Props) => {
       const newData = {
         ...data,
         image: newImage,
-      }
+      };
       dispatchGame({
         type: "image",
         data: newData,
