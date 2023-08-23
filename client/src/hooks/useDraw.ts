@@ -4,10 +4,6 @@ import { useLines } from "./useLines";
 
 export const useDraw = () => {
   const [isDrawing, setIsDrawing] = useState(false);
-  const [prevCoords, setPrevCoords] = useState<{
-    x: number;
-    y: number;
-  } | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const ctx = canvasRef.current?.getContext("2d");
   const { color, width, tool, currentLine, setCurrentLine } = useToolsContext();
@@ -39,7 +35,6 @@ export const useDraw = () => {
   useEffect(() => {
     const stopDrawing = () => {
       setIsDrawing(false);
-      setPrevCoords(null);
     };
 
     const draw = (event: MouseEvent) => {
@@ -53,10 +48,9 @@ export const useDraw = () => {
           ctx.beginPath();
           const position = getPosition(event.clientX, event.clientY);
           if (!position) return;
-          ctx.moveTo(prevCoords?.x ?? position.x, prevCoords?.y ?? position.y);
+          ctx.moveTo(position.x, position.y);
           ctx.lineTo(position.x, position.y);
           ctx.stroke();
-          setPrevCoords(position);
           if (tool === "Erase" && lines.length === 1) {
             ctx.clearRect(
               0,
@@ -84,18 +78,7 @@ export const useDraw = () => {
       document.removeEventListener("pointerup", stopDrawing);
       document.removeEventListener("pointermove", draw);
     };
-  }, [
-    color.code,
-    ctx,
-    handleLines,
-    isDrawing,
-    lines,
-    prevCoords?.x,
-    prevCoords?.y,
-    tool,
-    width,
-  ]);
+  }, [color.code, ctx, handleLines, isDrawing, lines, tool, width]);
 
   return { startDrawing, canvasRef, lines };
 };
-
