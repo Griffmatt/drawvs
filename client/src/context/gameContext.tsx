@@ -171,7 +171,6 @@ export const GameContextProvider = ({ children }: Props) => {
       userId: string;
     }) => {
       const newImage = loadImage(data.image);
-      console.log(newImage)
       const newData = {
         ...data,
         image: newImage,

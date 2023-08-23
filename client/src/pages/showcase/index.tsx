@@ -28,6 +28,11 @@ export default function Show() {
   const handleNextSet = () => {
     setImageIndex(0);
     setIndex((prev) => prev + 1);
+    console.log(imageIndex, images?.length);
+    if (index + 1 === images?.length) {
+      void router.replace("/lobby");
+      socket.emit("end-game");
+    }
     socket.emit("next-set");
   };
 
@@ -35,12 +40,14 @@ export default function Show() {
     const nextSet = () => {
       setImageIndex(0);
       setIndex((prev) => prev + 1);
+      if (index + 1 === images?.length) {
+        void router.replace("/lobby");
+      }
     };
 
     const nextImage = () => {
       setImageIndex((prev) => prev + 1);
     };
-
     socket.on("next-set-res", nextSet);
     socket.on("next-image-res", nextImage);
 
@@ -48,7 +55,7 @@ export default function Show() {
       socket.off("next-set-res", nextSet);
       socket.off("next-image-res", nextImage);
     };
-  }, []);
+  }, [images?.length, index, router]);
 
   if (!images) return;
 

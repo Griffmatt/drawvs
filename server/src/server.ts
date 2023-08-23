@@ -102,6 +102,14 @@ io.on('connection', (socket) => {
     socket.emit('start-game')
   })
 
+  socket.on("end-game", () => {
+    const roomId = usersRoom.get(socket.id)
+    if (!roomId) return
+    const room = rooms.get(roomId)
+    if (!room) return
+    rooms.set(roomId, { ...room, gameStarted: false})
+  })
+
   socket.on('kick-player', (data) => {
     const roomId = usersRoom.get(socket.id)
     if (!roomId) return
