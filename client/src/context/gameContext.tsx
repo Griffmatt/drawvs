@@ -7,7 +7,8 @@ import {
   useEffect,
 } from "react";
 import { socket } from "~/assets/socket";
-import type { Images, Image, User } from "~/assets/types/types";
+import type { Game, Payload } from "~/assets/types/game";
+import type { Images, User, UserImage } from "~/assets/types/types";
 import { loadImage } from "~/helpers/loadImage";
 
 interface Context {
@@ -19,70 +20,6 @@ interface Props {
   children: ReactNode;
 }
 
-type PayloadA = {
-  type: "gameName";
-  data: string;
-};
-type PayloadB = {
-  type: "users";
-  data: User[];
-};
-type PayloadC = {
-  type: "all";
-  data: {
-    name: string;
-    users: User[];
-  };
-};
-
-type PayloadD = {
-  type: "rounds";
-  data: number;
-};
-
-type PayloadE = {
-  type: "round";
-  data: number;
-};
-
-type imageWithId = Image & { userId: string };
-
-type PayloadF = {
-  type: "image";
-  data: imageWithId;
-};
-
-type PayloadG = {
-  type: "reset" | "reset-game";
-  data: null;
-};
-
-type PayloadH = {
-  type: "admin";
-  data: {
-    old: string;
-    new: string;
-  };
-};
-
-type Payload =
-  | PayloadA
-  | PayloadB
-  | PayloadC
-  | PayloadD
-  | PayloadE
-  | PayloadF
-  | PayloadG
-  | PayloadH;
-
-type Game = {
-  name: string;
-  users: User[];
-  rounds: number;
-  round: number;
-  images: Images[];
-};
-
 const gameContext = createContext({} as Context);
 
 export const useGameContext = () => useContext(gameContext);
@@ -91,6 +28,7 @@ const initialState = {
   users: [] as User[],
   rounds: 0,
   round: 1,
+  time: 60,
   images: [] as Images[],
 };
 
@@ -114,7 +52,7 @@ export const GameContextProvider = ({ children }: Props) => {
         return { ...state, rounds: data, images: usersInitImages };
       case "round":
         const newRound = state.round + data;
-        return { ...state, round: newRound };
+        return { ...state, round: newRound,time: 60 };
       case "image":
         const updatedImages = updateImages(state.images, data);
         return { ...state, images: updatedImages };
@@ -122,6 +60,8 @@ export const GameContextProvider = ({ children }: Props) => {
         return { ...state, name: data.name };
       case "reset":
         return initialState;
+        case "time":
+          return {...state, time: data}
       case "reset-game":
         return { ...initialState, users: state.users };
       default:
@@ -183,10 +123,10 @@ export const GameContextProvider = ({ children }: Props) => {
       });
     };
 
-    const updateAdmin = (data: { old: string; new: string }) => {
+    const updateTime = (time: number) => {
       dispatchGame({
-        type: "admin",
-        data: data,
+        type: "time",
+        data: time
       });
     };
 
@@ -197,7 +137,7 @@ export const GameContextProvider = ({ children }: Props) => {
     socket.on("kicked", kicked);
     socket.on("start-game", startGame);
     socket.on("receive-image", receiveImage);
-    socket.on("update-admin", updateAdmin);
+    socket.on("update-time-res", updateTime);
 
     return () => {
       socket.off("update-users", updateUsers);
@@ -216,7 +156,7 @@ export const GameContextProvider = ({ children }: Props) => {
   );
 };
 
-const updateImages = (Images: Images[], data: imageWithId) => {
+const updateImages = (Images: Images[], data: UserImage) => {
   const userImages = Images.map((user) => {
     if (user.userId === data.userId) {
       const images = user.images.map((image) => {

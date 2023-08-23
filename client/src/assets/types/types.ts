@@ -12,10 +12,14 @@ type Lines = {
   width: number;
 }[][];
 
+type UserImage = Image & {
+  userId: string
+}
+
 type Image = {
   id: number;
   prompt: string;
-  image: HTMLCanvasElement |  HTMLImageElement | null;
+  image: HTMLCanvasElement | HTMLImageElement | null;
 };
 
 type Images = {
@@ -23,4 +27,4 @@ type Images = {
   images: Image[];
 };
 
-export type { User, Lines, Image, Images };
+export type { User, Lines, Image, Images, UserImage };

@@ -45,7 +45,7 @@ io.on('connection', (socket) => {
   socket.on('join-room', (data: { name: string; code: string }) => {
     const room = rooms.get(data.code)
     if (room && room.users.length < 8) {
-      if(room.gameStarted) return
+      if (room.gameStarted) return
       socket.join(data.code)
 
       const nameExists = room.users.some(
@@ -102,12 +102,12 @@ io.on('connection', (socket) => {
     socket.emit('start-game')
   })
 
-  socket.on("end-game", () => {
+  socket.on('end-game', () => {
     const roomId = usersRoom.get(socket.id)
     if (!roomId) return
     const room = rooms.get(roomId)
     if (!room) return
-    rooms.set(roomId, { ...room, gameStarted: false})
+    rooms.set(roomId, { ...room, gameStarted: false })
   })
 
   socket.on('kick-player', (data) => {
@@ -122,9 +122,10 @@ io.on('connection', (socket) => {
     usersRoom.delete(socket.id)
   })
 
-  socket.on('done', () => {
+  socket.on('done', (data) => {
     const roomId = usersRoom.get(socket.id)
     if (!roomId) return
+
     const room = rooms.get(roomId)
     if (!room) return
     const updated = room.users.map((user) => {
@@ -135,14 +136,22 @@ io.on('connection', (socket) => {
     })
     rooms.set(roomId, { ...room, users: updated })
 
-    if (updated.some((user) => !user.done)) return
+    if (updated.every((user) => user.done) || data) {
+      const undo = room.users.map((user) => {
+        return { ...user, done: false }
+      })
+      rooms.set(roomId, { ...room, users: undo })
+      socket.to(roomId).emit('round-done')
+      socket.emit('round-done')
+    }
+  })
 
-    const undo = room.users.map((user) => {
-      return { ...user, done: false }
-    })
-    rooms.set(roomId, { ...room, users: undo })
-    socket.to(roomId).emit('round-done')
-    socket.emit('round-done')
+  socket.on('update-time', (time) => {
+    const roomId = usersRoom.get(socket.id)
+
+    if (!roomId) return
+
+    socket.to(roomId).emit('update-time-res', time)
   })
 
   socket.on('send-image', (data) => {
@@ -153,16 +162,16 @@ io.on('connection', (socket) => {
     socket.to(roomId).emit('receive-image', data)
   })
 
-  socket.on("next-set", () => {
+  socket.on('next-set', () => {
     const roomId = usersRoom.get(socket.id)
     if (!roomId) return
-    socket.to(roomId).emit("next-set-res")
-  });
-  socket.on("next-image", () => {
+    socket.to(roomId).emit('next-set-res')
+  })
+  socket.on('next-image', () => {
     const roomId = usersRoom.get(socket.id)
     if (!roomId) return
-    socket.to(roomId).emit("next-image-res")
-  });
+    socket.to(roomId).emit('next-image-res')
+  })
 
   socket.on('leave-room', () => {
     const roomId = usersRoom.get(socket.id)

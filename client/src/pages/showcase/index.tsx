@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { useState } from "react";
 import { Canvas } from "~/components/UI/canvas";
 import BackButton from "~/components/UI/backButton";
@@ -28,36 +28,36 @@ export default function Show() {
   }, [game.users.length, router]);
 
   const handleNextRound = () => {
-    setImageIndex(0);
-    setRoundIndex((prev) => prev + 1);
-    if (finalSRoundReached) {
-      void router.replace("/lobby");
-    }
+    nextRound();
     socket.emit("next-set");
   };
 
-  useEffect(() => {
-    const nextRound = () => {
-      setImageIndex(0);
-      setRoundIndex((prev) => prev + 1);
-      if (finalSRoundReached) {
-        void router.replace("/lobby");
-      }
-    };
+  const handleNextImage = () => {
+    nextImage();
+    socket.emit("next-image");
+  };
 
-    const nextImage = () => {
-      setImageIndex((prev) => prev + 1);
-    };
+  const nextRound = useCallback(() => {
+    if (finalSRoundReached) {
+      void router.replace("/lobby");
+      return;
+    }
+    setImageIndex(0);
+    setRoundIndex((prev) => prev + 1);
+  }, [finalSRoundReached, router]);
+
+  const nextImage = () => {
+    setImageIndex((prev) => prev + 1);
+  };
+
+  useEffect(() => {
     socket.on("next-set-res", nextRound);
     socket.on("next-image-res", nextImage);
-
     return () => {
       socket.off("next-set-res", nextRound);
       socket.off("next-image-res", nextImage);
     };
-  }, [finalSRoundReached, roundIndex, router]);
-
-  if (!images) return;
+  }, [nextRound]);
 
   return (
     <>
@@ -68,12 +68,14 @@ export default function Show() {
           <UserList userId={game.images[roundIndex]?.userId} />
           <div className="col-span-2 aspect-[5/4] rounded bg-black/20 p-4">
             <h2>Drawvs</h2>
-            <ImagesShown
-              setImageIndex={setImageIndex}
-              imageIndex={imageIndex}
-              images={images}
-              isAdmin={isAdmin}
-            />
+            {images && (
+              <ImagesShown
+                handleNextImage={handleNextImage}
+                imageIndex={imageIndex}
+                images={images}
+                isAdmin={isAdmin}
+              />
+            )}
           </div>
           <div className="col-span-full flex justify-end">
             {finalImageReached && (
@@ -95,20 +97,16 @@ export default function Show() {
 interface ImagesShownProps {
   images: Image[];
   imageIndex: number;
-  setImageIndex: React.Dispatch<React.SetStateAction<number>>;
+  handleNextImage: () => void;
   isAdmin: boolean;
 }
 
 const ImagesShown = ({
-  setImageIndex,
+  handleNextImage,
   imageIndex,
   images,
   isAdmin,
 }: ImagesShownProps) => {
-  const handleNext = () => {
-    setImageIndex((prev) => prev + 1);
-    socket.emit("next-image");
-  };
   return (
     <div className="flex h-full flex-col gap-2 overflow-y-scroll p-4">
       {images.map((image, index) => {
@@ -116,7 +114,7 @@ const ImagesShown = ({
         if (index > imageIndex)
           return (
             <button
-              onClick={handleNext}
+              onClick={handleNextImage}
               disabled={!isAdmin}
               className="h-fit w-fit rounded bg-white/30 px-4 py-2"
             >
