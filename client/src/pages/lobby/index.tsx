@@ -41,18 +41,28 @@ export default function Lobby() {
 
   return (
     <>
-      <div className="grid gap-4">
-        <BackButton />
+      <div className="flex h-full flex-col justify-center gap-2">
+        <div className="flex justify-between">
+          <BackButton />
+          {isAdmin && (
+            <button
+              className="w-fit rounded border-4 border-black/20 bg-white/20 px-10 py-4 hover:bg-white/10"
+              onClick={startGame}
+            >
+              <h4>Start</h4>
+            </button>
+          )}
+        </div>
         <h2 className="h-fit">Lobby</h2>
-        <div className="grid grid-cols-3 gap-8">
+        <div className="flex gap-2 overflow-hidden">
           <UserList />
-          <div className="aspect[5/4] col-span-2  overflow-y-hidden rounded bg-black/20 p-4">
+          <div className="aspect[5/4] col-span-2 w-[67%] rounded bg-black/20 p-4">
             <h3>Game Modes</h3>
             <div className="grid gap-2">
               {GAME_MODES.map((mode) => {
                 return (
                   <button
-                    className={`flex justify-center rounded bg-white/20 p-10 align-middle hover:bg-white/10 ${
+                    className={`flex justify-center rounded bg-white/20 p-6 align-middle hover:bg-white/10 ${
                       mode.name === game.name ? "border-2 border-white" : ""
                     }`}
                     key={mode.name}
@@ -65,14 +75,6 @@ export default function Lobby() {
               })}
             </div>
           </div>
-          {isAdmin && (
-            <button
-              className="col-span-full col-start-2 w-full bg-black/30 p-4"
-              onClick={startGame}
-            >
-              <h3>Start</h3>
-            </button>
-          )}
         </div>
       </div>
     </>

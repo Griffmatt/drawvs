@@ -45,7 +45,7 @@ export default function Draw() {
           type: "time",
           data: game.time - 1,
         });
-        socket.emit("update-time", game.time-1)
+        socket.emit("update-time", game.time - 1);
       }
     }, 1000);
 
@@ -55,12 +55,14 @@ export default function Draw() {
   }, [dispatchGame, game.time, isAdmin]);
 
   return (
-    <div className="relative grid h-full grid-cols-7 gap-6 p-6">
-      <GameArea />
-      <h2 className="absolute left-10 top-0">
-        {game.round}/{game.rounds}
-      </h2>
-      <h2 className="absolute right-10 top-0">{game.time}</h2>
+    <div className="flex h-full flex-col justify-center gap-2">
+      <div className="relative grid grid-cols-7 gap-6">
+        <GameArea />
+        <h2 className="absolute left-10 top-0">
+          {game.round}/{game.rounds}
+        </h2>
+        <h2 className="absolute right-10 top-0">{game.time}</h2>
+      </div>
     </div>
   );
 }

@@ -61,12 +61,23 @@ export default function Show() {
 
   return (
     <>
-      <div className="flex flex-col gap-4">
-        <BackButton />
+      <div className="flex h-full flex-col justify-center gap-2">
+        <div className="flex justify-between">
+          <BackButton />
+          {finalImageReached && (
+            <button
+              onClick={handleNextRound}
+              className="w-fit rounded border-4 border-black/20 bg-white/20 px-10 py-4 hover:bg-white/10"
+              disabled={!isAdmin}
+            >
+              <h4>{finalSRoundReached ? "Finish" : "next set"}</h4>
+            </button>
+          )}
+        </div>
         <h2>Showcase</h2>
-        <div className="grid grid-cols-3 gap-8">
+        <div className="flex gap-2 overflow-hidden">
           <UserList userId={game.images[roundIndex]?.userId} />
-          <div className="col-span-2 aspect-[5/4] rounded bg-black/20 p-4">
+          <div className="col-span-2 w-[67%] rounded bg-black/20 p-4">
             <h2>Drawvs</h2>
             {images && (
               <ImagesShown
@@ -75,17 +86,6 @@ export default function Show() {
                 images={images}
                 isAdmin={isAdmin}
               />
-            )}
-          </div>
-          <div className="col-span-full flex justify-end">
-            {finalImageReached && (
-              <button
-                onClick={handleNextRound}
-                className="h-fit rounded bg-black/20 p-4"
-                disabled={!isAdmin}
-              >
-                {finalSRoundReached ? "Finish" : "next set"}
-              </button>
             )}
           </div>
         </div>

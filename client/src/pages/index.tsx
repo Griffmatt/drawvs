@@ -75,9 +75,9 @@ export default function Home() {
   }, [router, dispatchGame]);
 
   return (
-    <div className="grid gap-8 text-center">
-      <h1>DRAWVS</h1>
-      <div className="flex w-full flex-col gap-2 ">
+    <div className="flex h-full flex-col justify-center gap-8 text-center">
+      <h1 className="h-fit">DRAWVS</h1>
+      <div className="flex flex-col gap-2">
         <div className="grid grid-cols-2 gap-2">
           <div>
             <div className="flex w-full justify-around">
@@ -101,44 +101,36 @@ export default function Home() {
               </button>
             </div>
             <form
-              className="grid gap-10 rounded-b-xl bg-black/10 p-8 text-center"
+              className="flex flex-col justify-between gap-2 rounded-b-xl bg-black/10 p-8 text-center"
               onSubmit={handleSubmit}
             >
-              <div className="grid gap-4">
-                <h3>Choose A Name</h3>
-                <input
-                  value={name}
-                  onChange={(event) => handleNameChange(event.target.value)}
-                />
-              </div>
-              <div className="grid gap-4">
-                <h3>{selected === "Create" ? "Choose" : "Enter"} A Code</h3>
-                <input
-                  value={code}
-                  onChange={(event) => handleCodeChange(event.target.value)}
-                />
-              </div>
-              <div className="grid gap-2">
-                <button className="w-full rounded border-2 border-white bg-slate-300/20 px-2 py-4 text-3xl font-extrabold">
-                  {selected === "Create" ? "Start" : "Join"}
-                </button>
-                <h3
-                  className={`${
-                    message === "blank" ? "text-transparent" : "text-red-600"
-                  }`}
-                >
-                  {message}
-                </h3>
-              </div>
+              <h3>Choose A Name</h3>
+              <input
+                value={name}
+                onChange={(event) => handleNameChange(event.target.value)}
+              />
+
+              <h3>{selected === "Create" ? "Choose" : "Enter"} A Code</h3>
+              <input
+                value={code}
+                onChange={(event) => handleCodeChange(event.target.value)}
+              />
+              <h3
+                className={`${
+                  message === "blank" ? "text-transparent" : "text-red-600"
+                }`}
+              >
+                {message}
+              </h3>
+              <button className="w-full rounded border-2 border-white bg-slate-300/20 px-2 py-4 text-3xl font-extrabold">
+                {selected === "Create" ? "Start" : "Join"}
+              </button>
             </form>
           </div>
           <div className="rounded-xl border-2 border-black/10 p-4">
             <h2 className="text-center">How To Play</h2>
           </div>
         </div>
-      </div>
-      <div>
-        <h4>Hi!</h4>
       </div>
     </div>
   );
