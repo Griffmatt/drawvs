@@ -7,7 +7,7 @@ export const useDraw = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const ctx = canvasRef.current?.getContext("2d");
   const { color, width, tool, currentLine, setCurrentLine } = useToolsContext();
-  const { linesSlice: lines, handleLines } = useLines(
+  const { linesSlice: lines, handleLines, clearLines } = useLines(
     currentLine,
     setCurrentLine,
     canvasRef.current?.width ?? 0,
@@ -84,5 +84,5 @@ export const useDraw = () => {
     };
   }, [color.code, ctx, handleLines, isDrawing, lines, tool, width]);
 
-  return { startDrawing, canvasRef, lines };
+  return { startDrawing, canvasRef, lines, clearLines };
 };

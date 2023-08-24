@@ -1,7 +1,7 @@
 import { useState, useRef, useLayoutEffect } from "react";
 
 interface Props {
-  image: HTMLCanvasElement | HTMLImageElement;
+  image: HTMLImageElement;
 }
 
 export const Canvas = ({ image }: Props) => {
@@ -11,9 +11,12 @@ export const Canvas = ({ image }: Props) => {
 
   useLayoutEffect(() => {
     const ctx = canvasRef.current?.getContext("2d");
-    ctx?.clearRect(0, 0, dimensions.width, dimensions.height);
-    ctx?.drawImage(image, 0, 0, dimensions.width, dimensions.height);
 
+    if (image.complete) {
+      ctx?.clearRect(0, 0, dimensions.width, dimensions.height);
+      ctx?.drawImage(image, 0, 0, dimensions.width, dimensions.height);
+      return
+    }
     image.onload = () => {
       ctx?.clearRect(0, 0, dimensions.width, dimensions.height);
       ctx?.drawImage(image, 0, 0, dimensions.width, dimensions.height);

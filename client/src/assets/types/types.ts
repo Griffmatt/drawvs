@@ -19,7 +19,7 @@ type UserImage = Image & {
 type Image = {
   id: number;
   prompt: string;
-  image: HTMLCanvasElement | HTMLImageElement | null;
+  image:  HTMLImageElement | null;
 };
 
 type Images = {

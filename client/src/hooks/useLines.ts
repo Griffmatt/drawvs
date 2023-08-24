@@ -50,7 +50,6 @@ export const useLines = (
             y: null,
           };
           line.forEach((dot) => {
-
             ctx.beginPath();
             //first point creates dot so when you click and unclick without moving mouse dot is still drawn
             if (previous.x && previous.y) {
@@ -62,9 +61,9 @@ export const useLines = (
               ctx.lineTo(dot.x, dot.y);
               ctx.stroke();
             } else {
-              ctx.fillStyle = dot.color
-              ctx.arc(dot.x, dot.y, dot.width/2, 0, 2 * Math.PI);
-              ctx.fill()
+              ctx.fillStyle = dot.color;
+              ctx.arc(dot.x, dot.y, dot.width / 2, 0, 2 * Math.PI);
+              ctx.fill();
             }
             previous = { x: dot.x, y: dot.y };
           });
@@ -78,5 +77,11 @@ export const useLines = (
     reDraw();
   }, [ctx, currentLine, height, linesSlice, width]);
 
-  return { linesSlice, handleLines };
+  const clearLines = () => {
+    setLines([]);
+    setCurrentLine(0);
+    ctx?.clearRect(0, 0, width, height);
+  };
+
+  return { linesSlice, handleLines, clearLines };
 };

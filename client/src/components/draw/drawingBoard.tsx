@@ -3,6 +3,7 @@ import { useDraw } from "~/hooks/useDraw";
 import type { Image } from "~/assets/types/types";
 import { useGameContext } from "~/context/gameContext";
 import { socket } from "~/assets/socket";
+import { loadImage } from "~/helpers/loadImage";
 
 interface Props {
   image: Image;
@@ -10,7 +11,7 @@ interface Props {
 }
 
 export default function DrawingBoard({ image, userId }: Props) {
-  const { startDrawing, canvasRef, lines } = useDraw();
+  const { startDrawing, canvasRef, lines, clearLines } = useDraw();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [dimensions, setDimensions] = useState({ height: 0, width: 0 });
   const { dispatchGame } = useGameContext();
@@ -33,18 +34,20 @@ export default function DrawingBoard({ image, userId }: Props) {
     const roundDone = () => {
       const ctx = canvasRef.current;
       if (!ctx) return;
-      const imageData = { ...image, userId: userId, image: ctx };
+      const canvasImage = loadImage(ctx.toDataURL());
+      const imageData = { ...image, userId: userId, image: canvasImage };
       dispatchGame({
         type: "image",
         data: imageData,
       });
       socket.emit("send-image", { ...imageData, image: ctx.toDataURL() });
+      clearLines();
     };
     socket.on("round-done", roundDone);
     return () => {
       socket.off("round-done", roundDone);
     };
-  }, [canvasRef, dispatchGame, image, lines, userId]);
+  }, [canvasRef, clearLines, dispatchGame, image, lines, userId]);
 
   return (
     <div className="h-[80%] w-full rounded-b-2xl" ref={containerRef}>
