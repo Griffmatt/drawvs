@@ -5,6 +5,7 @@ import { socket } from "~/assets/socket";
 import { GAME_MODES } from "~/assets/gameModes";
 import { useGameContext } from "~/context/gameContext";
 import { UserList } from "~/components/userList";
+import type { GameInfo } from "~/assets/types/game";
 
 export default function Lobby() {
   const router = useRouter();
@@ -25,12 +26,12 @@ export default function Lobby() {
     });
   }, [dispatchGame]);
 
-  const handleGameChange = (mode: string) => {
+  const handleGameChange = (gameInfo: GameInfo) => {
     dispatchGame({
-      type: "gameName",
-      data: mode,
+      type: "gameInfo",
+      data: gameInfo,
     });
-    socket.emit("game-change", mode);
+    socket.emit("game-change", gameInfo);
   };
 
   const startGame = () => {
@@ -59,17 +60,17 @@ export default function Lobby() {
           <div className="aspect[5/4] col-span-2 w-[67%] rounded bg-black/20 p-4">
             <h3>Game Modes</h3>
             <div className="grid gap-2">
-              {GAME_MODES.map((mode) => {
+              {GAME_MODES.map((gameInfo) => {
                 return (
                   <button
                     className={`flex justify-center rounded bg-white/20 p-6 align-middle hover:bg-white/10 ${
-                      mode.name === game.name ? "border-2 border-white" : ""
+                      gameInfo.name === game.name ? "border-2 border-white" : ""
                     }`}
-                    key={mode.name}
-                    onClick={() => handleGameChange(mode.name)}
+                    key={gameInfo.name}
+                    onClick={() => handleGameChange(gameInfo)}
                     disabled={!isAdmin}
                   >
-                    <h4>{mode.name}</h4>
+                    <h4>{gameInfo.name}</h4>
                   </button>
                 );
               })}

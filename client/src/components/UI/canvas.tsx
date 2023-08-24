@@ -37,7 +37,7 @@ export const Canvas = ({ image }: Props) => {
     <>
       <div className="h-full w-full rounded-b-2xl" ref={containerRef}>
         <canvas
-          className="absolute z-20 bg-white"
+          className="bg-white"
           height={dimensions.height}
           width={dimensions.width}
           ref={canvasRef}

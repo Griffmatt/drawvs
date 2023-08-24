@@ -27,4 +27,7 @@ type Images = {
   images: Image[];
 };
 
-export type { User, Lines, Image, Images, UserImage };
+
+type Rotation = readonly ["prompt", "draw"] | readonly ["animation"] | readonly ["story"];
+
+export type { User, Lines, Image, Images, UserImage, Rotation };

@@ -89,7 +89,9 @@ io.on('connection', (socket) => {
   })
 
   socket.on('game-change', (data) => {
-    socket.to(data.roomId).emit('update-name', data.mode)
+    const roomId = usersRoom.get(socket.id)
+    if (!roomId) return
+    socket.to(roomId).emit('update-game-mode', data)
   })
 
   socket.on('starting-game', () => {

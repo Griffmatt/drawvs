@@ -19,13 +19,14 @@ export default function Draw() {
 
   useEffect(() => {
     const nextRound = () => {
+      if (game.round === game.rounds) {
+        void router.replace("/showcase");
+        return
+      }
       dispatchGame({
         type: "round",
         data: 1,
       });
-      if (game.round === game.rounds) {
-        void router.replace("/showcase");
-      }
     };
 
     socket.on("round-done", nextRound);

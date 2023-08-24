@@ -7,7 +7,7 @@ import {
   useEffect,
 } from "react";
 import { socket } from "~/assets/socket";
-import type { Game, Payload } from "~/assets/types/game";
+import type { Game, Payload, GameInfo } from "~/assets/types/game";
 import type { Images, User, UserImage } from "~/assets/types/types";
 import { loadImage } from "~/helpers/loadImage";
 
@@ -23,13 +23,14 @@ interface Props {
 const gameContext = createContext({} as Context);
 
 export const useGameContext = () => useContext(gameContext);
-const initialState = {
+const initialState: Game = {
   name: "Normal",
-  users: [] as User[],
+  users: [],
   rounds: 0,
   round: 1,
   time: 60,
-  images: [] as Images[],
+  images: [],
+  rotation: ["prompt", "draw"],
 };
 
 export const GameContextProvider = ({ children }: Props) => {
@@ -38,8 +39,8 @@ export const GameContextProvider = ({ children }: Props) => {
   const reducer = (state: Game, action: Payload) => {
     const { type, data } = action;
     switch (type) {
-      case "gameName":
-        return { ...state, name: data };
+      case "gameInfo":
+        return { ...state, name: data.name, rotation: data.rotation };
       case "users":
         return { ...state, users: data };
       case "rounds":
@@ -52,7 +53,7 @@ export const GameContextProvider = ({ children }: Props) => {
         return { ...state, rounds: data, images: usersInitImages };
       case "round":
         const newRound = state.round + data;
-        return { ...state, round: newRound,time: 60 };
+        return { ...state, round: newRound, time: 60 };
       case "image":
         const updatedImages = updateImages(state.images, data);
         return { ...state, images: updatedImages };
@@ -60,8 +61,8 @@ export const GameContextProvider = ({ children }: Props) => {
         return { ...state, name: data.name };
       case "reset":
         return initialState;
-        case "time":
-          return {...state, time: data}
+      case "time":
+        return { ...state, time: data };
       case "reset-game":
         return { ...initialState, users: state.users };
       default:
@@ -79,9 +80,10 @@ export const GameContextProvider = ({ children }: Props) => {
       });
     };
 
-    const updateGame = (data: string) => {
+    const updateGame = (data: GameInfo) => {
+      console.log(data);
       dispatchGame({
-        type: "gameName",
+        type: "gameInfo",
         data: data,
       });
     };
@@ -126,12 +128,12 @@ export const GameContextProvider = ({ children }: Props) => {
     const updateTime = (time: number) => {
       dispatchGame({
         type: "time",
-        data: time
+        data: time,
       });
     };
 
     socket.on("update-users", updateUsers);
-    socket.on("update-name", updateGame);
+    socket.on("update-game-mode", updateGame);
     socket.on("request-data", sendData);
     socket.on("receive-data", receiveData);
     socket.on("kicked", kicked);
@@ -141,7 +143,7 @@ export const GameContextProvider = ({ children }: Props) => {
 
     return () => {
       socket.off("update-users", updateUsers);
-      socket.off("update-name", updateGame);
+      socket.off("update-game-mode", updateGame);
       socket.off("request-data", sendData);
       socket.off("receive-data", receiveData);
       socket.off("kicked", kicked);

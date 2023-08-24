@@ -15,7 +15,7 @@ export const useDraw = () => {
     ctx
   );
 
-  const startDrawing = (event: MouseEvent) => {
+  const startDrawing = (event: React.PointerEvent<HTMLCanvasElement>) => {
     setIsDrawing(true);
     if (tool === "Draw" || tool === "Erase") {
       const selectedColor = tool === "Erase" ? "#FFFFFF" : color.code;

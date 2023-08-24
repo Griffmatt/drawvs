@@ -4,9 +4,10 @@ import { Canvas } from "~/components/UI/canvas";
 import BackButton from "~/components/UI/backButton";
 import { UserList } from "~/components/userList";
 import { useGameContext } from "~/context/gameContext";
-import type { Image } from "~/assets/types/types";
+import type { Image, Rotation } from "~/assets/types/types";
 import { useRouter } from "next/router";
 import { socket } from "~/assets/socket";
+import { getRoundType } from "~/helpers/getRoundType";
 
 export default function Show() {
   const router = useRouter();
@@ -75,9 +76,9 @@ export default function Show() {
           )}
         </div>
         <h2>Showcase</h2>
-        <div className="flex gap-2 overflow-hidden">
+        <div className="flex aspect-[7/4] gap-2 overflow-hidden">
           <UserList userId={game.images[roundIndex]?.userId} />
-          <div className="col-span-2 w-[67%] rounded bg-black/20 p-4">
+          <div className="flex w-[67%] flex-col overflow-hidden rounded bg-black/20 p-4">
             <h2>Drawvs</h2>
             {images && (
               <ImagesShown
@@ -85,6 +86,7 @@ export default function Show() {
                 imageIndex={imageIndex}
                 images={images}
                 isAdmin={isAdmin}
+                rotation={game.rotation}
               />
             )}
           </div>
@@ -99,6 +101,7 @@ interface ImagesShownProps {
   imageIndex: number;
   handleNextImage: () => void;
   isAdmin: boolean;
+  rotation: Rotation;
 }
 
 const ImagesShown = ({
@@ -106,36 +109,45 @@ const ImagesShown = ({
   imageIndex,
   images,
   isAdmin,
+  rotation,
 }: ImagesShownProps) => {
   return (
-    <div className="flex h-full flex-col gap-2 overflow-y-scroll p-4">
-      {images.map((image, index) => {
-        if (index > imageIndex + 1) return;
-        if (index > imageIndex)
-          return (
-            <button
-              onClick={handleNextImage}
-              disabled={!isAdmin}
-              className="h-fit w-fit rounded bg-white/30 px-4 py-2"
-            >
-              ...
-            </button>
-          );
-        if (index % 2 === 0)
-          return (
-            <div
-              key={image.id}
-              className="h-fit w-fit rounded bg-white/30 px-4 py-2"
-            >
-              {image.prompt}
-            </div>
-          );
-        return (
-          <div key={image.id} className="aspect-[5/3.2]">
-            {image.image && <Canvas image={image.image} />}
-          </div>
-        );
-      })}
+    <div className="overflow-y-scroll">
+      <div className="h-full gap-4 p-4">
+        {images.map((image, index) => {
+          const roundType = getRoundType(rotation, index + 1);
+          if (index > imageIndex + 1) return;
+          if (index > imageIndex)
+            return (
+              <button
+                onClick={handleNextImage}
+                disabled={!isAdmin}
+                className="ml-auto h-fit w-fit rounded bg-white/30 px-4 py-2"
+              >
+                ...
+              </button>
+            );
+          if (roundType === "story" || roundType === "prompt")
+            return (
+              <div
+                key={image.id}
+                className="my-3 ml-auto h-fit w-fit rounded bg-white/30 px-4 py-2"
+              >
+                {image.prompt}
+              </div>
+            );
+          if (roundType === "draw" || roundType === "animation") {
+            return (
+              <div
+                className="my-3 ml-auto aspect-[5/3] lg:w-[75%]"
+                key={image.id}
+              >
+                {image.image && <Canvas image={image.image} />}
+              </div>
+            );
+          }
+        })}
+      </div>
     </div>
   );
 };

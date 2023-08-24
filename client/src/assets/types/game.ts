@@ -1,8 +1,13 @@
-import type { Images, User, UserImage } from "./types";
+import type { Images, Rotation, User, UserImage } from "./types";
+
+type GameInfo = {
+  name: string;
+  rotation: Rotation;
+};
 
 type PayloadA = {
-  type: "gameName";
-  data: string;
+  type: "gameInfo";
+  data: GameInfo;
 };
 type PayloadB = {
   type: "users";
@@ -58,6 +63,7 @@ type Game = {
   round: number;
   time: number;
   images: Images[];
+  rotation: Rotation;
 };
 
-export type { Game, Payload };
+export type { Game, Payload, GameInfo };
