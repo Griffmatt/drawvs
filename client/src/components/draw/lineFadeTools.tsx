@@ -1,9 +1,15 @@
+import type { ChangeEvent } from "react";
 import { useToolsContext } from "~/context/toolsContext";
 
 export default function LineFadeTools() {
-  const { width, setWidth } = useToolsContext();
+  const { width, setWidth, opacity, setOpacity } = useToolsContext();
+
+  const handleOpacity = (event: ChangeEvent<HTMLInputElement>) => {
+    const value = Number(event.target.value)
+    setOpacity(value)
+  }
   return (
-    <section>
+    <section className="flex gap-4">
       <div className="grid grid-cols-5 gap-2 rounded bg-black/20 p-2">
         <button
           className={`flex h-16 w-16 items-center justify-center rounded-full border-4 bg-white/50 hover:bg-white/30 ${
@@ -46,7 +52,7 @@ export default function LineFadeTools() {
           <div className="h-10 w-10 rounded-full bg-black/80" />
         </button>
       </div>
-      <div></div>
+      <div className="rounded bg-black/20 p-2">  <input type="range" min="1" max="100"className="h-full" value={opacity} onChange={handleOpacity}/></div>
     </section>
   );
 }

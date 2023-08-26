@@ -6,7 +6,7 @@ export const useDraw = () => {
   const [isDrawing, setIsDrawing] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const ctx = canvasRef.current?.getContext("2d");
-  const { color, width, tool, currentLine, setCurrentLine } = useToolsContext();
+  const { color, width, tool, currentLine, setCurrentLine, opacity } = useToolsContext();
   const { linesSlice: lines, handleLines, clearLines } = useLines(
     currentLine,
     setCurrentLine,
@@ -17,6 +17,7 @@ export const useDraw = () => {
 
   const startDrawing = (event: React.PointerEvent<HTMLCanvasElement>) => {
     setIsDrawing(true);
+    console.log("asd")
     if (tool === "Draw" || tool === "Erase") {
       const selectedColor = tool === "Erase" ? "#FFFFFF" : color.code;
       const position = getPosition(event.clientX, event.clientY);
@@ -32,6 +33,7 @@ export const useDraw = () => {
             ...position,
             color: selectedColor,
             width,
+            opacity
           },
         ],
       ]);
@@ -69,6 +71,7 @@ export const useDraw = () => {
             ...position,
             color: selectedColor,
             width,
+            opacity
           });
           handleLines([...lines]);
         }
@@ -82,7 +85,7 @@ export const useDraw = () => {
       document.removeEventListener("pointerup", stopDrawing);
       document.removeEventListener("pointermove", draw);
     };
-  }, [color.code, ctx, handleLines, isDrawing, lines, tool, width]);
+  }, [color.code, ctx, handleLines, isDrawing, lines, opacity, tool, width]);
 
   return { startDrawing, canvasRef, lines, clearLines };
 };

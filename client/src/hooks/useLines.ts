@@ -1,11 +1,5 @@
 import { type Dispatch, type SetStateAction, useState, useEffect } from "react";
-
-type lines = {
-  x: number;
-  y: number;
-  color: string;
-  width: number;
-}[][];
+import type { Lines } from "~/assets/types/types";
 
 export const useLines = (
   currentLine: number,
@@ -14,16 +8,9 @@ export const useLines = (
   height: number,
   ctx?: CanvasRenderingContext2D | null
 ) => {
-  const [lines, setLines] = useState<lines>([]);
+  const [lines, setLines] = useState<Lines>([]);
 
-  const handleLines = (
-    updatedLines: {
-      x: number;
-      y: number;
-      color: string;
-      width: number;
-    }[][]
-  ) => {
+  const handleLines = (updatedLines: Lines) => {
     setLines([...updatedLines]);
     setCurrentLine(0);
   };
@@ -39,38 +26,34 @@ export const useLines = (
     }
   }, [currentLine, lines.length, setCurrentLine]);
 
+  //fixed opacity issue need to fix click to make cirlce issue still and also add transparent image to background canvas for animation
   useEffect(() => {
     const reDraw = () => {
       if (ctx) {
         ctx.clearRect(0, 0, width, height);
 
         linesSlice.forEach((line) => {
-          let previous: { x: number | null; y: number | null } = {
-            x: null,
-            y: null,
-          };
-          line.forEach((dot) => {
+          const firstDot = line[0];
+
+          if (firstDot) {
             ctx.beginPath();
-            //first point creates dot so when you click and unclick without moving mouse dot is still drawn
-            if (previous.x && previous.y) {
-              ctx.lineCap = "round";
-              ctx.lineJoin = "round";
-              ctx.strokeStyle = dot.color;
-              ctx.lineWidth = dot.width;
-              ctx.moveTo(previous.x, previous.y);
-              ctx.lineTo(dot.x, dot.y);
-              ctx.stroke();
-            } else {
-              ctx.fillStyle = dot.color;
-              ctx.arc(dot.x, dot.y, dot.width / 2, 0, 2 * Math.PI);
+            ctx.lineCap = "round";
+            ctx.lineJoin = "round";
+            ctx.globalAlpha = firstDot.opacity / 100;
+            ctx.strokeStyle = firstDot.color;
+            ctx.lineWidth = firstDot.width;
+            if (line.length === 1) {
+              ctx.fillStyle = firstDot.color;
+              ctx.arc(firstDot.x, firstDot.y, firstDot.width / 2, 0, 2 * Math.PI);
               ctx.fill();
+            } else {
+              ctx.moveTo(firstDot.x, firstDot.y);
+              line.forEach((dot) => {
+                ctx.lineTo(dot.x, dot.y);
+              });
+              ctx.stroke();
             }
-            previous = { x: dot.x, y: dot.y };
-          });
-          previous = {
-            x: null,
-            y: null,
-          };
+          }
         });
       }
     };

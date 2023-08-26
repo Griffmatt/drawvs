@@ -26,6 +26,8 @@ interface Context {
   handleIncrease: () => void;
   currentLine: number;
   setCurrentLine: Dispatch<SetStateAction<number>>;
+  opacity: number
+  setOpacity: Dispatch<SetStateAction<number>>
 }
 
 interface Props {
@@ -44,6 +46,7 @@ export const ToolsContextProvider = ({ children }: Props) => {
   const [width, setWidth] = useState(8);
   const [tool, setTool] = useState("Draw");
   const [currentLine, setCurrentLine] = useState(0);
+  const [opacity, setOpacity] = useState(100)
 
   const handleDecrease = () => {
     const plusOne = currentLine + 1;
@@ -68,6 +71,8 @@ export const ToolsContextProvider = ({ children }: Props) => {
         handleIncrease,
         currentLine,
         setCurrentLine,
+        opacity,
+        setOpacity
       }}
     >
       {children}
