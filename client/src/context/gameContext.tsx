@@ -24,13 +24,17 @@ const gameContext = createContext({} as Context);
 
 export const useGameContext = () => useContext(gameContext);
 const initialState: Game = {
-  name: "Normal",
   users: [],
   rounds: 0,
   round: 1,
   time: 60,
   images: [],
-  rotation: ["prompt", "draw"],
+  game: {
+    name: "Normal",
+    rotation: ["prompt", "draw"],
+    minPlayers: 2,
+    roundsPerPlayer: 1,
+  },
 };
 
 export const GameContextProvider = ({ children }: Props) => {
@@ -40,17 +44,18 @@ export const GameContextProvider = ({ children }: Props) => {
     const { type, data } = action;
     switch (type) {
       case "gameInfo":
-        return { ...state, name: data.name, rotation: data.rotation };
+        return { ...state, game: data };
       case "users":
         return { ...state, users: data };
       case "rounds":
-        const images = Array.from({ length: Math.ceil(data) }, (_, index) => {
+        const rounds = state.users.length * state.game.roundsPerPlayer
+        const images = Array.from({ length: rounds  }, (_, index) => {
           return { id: index, prompt: "", image: null };
         });
         const usersInitImages = state.users.map((user) => {
           return { userId: user.id, images: images };
         });
-        return { ...state, rounds: data, images: usersInitImages };
+        return { ...state, rounds: rounds, images: usersInitImages };
       case "round":
         const newRound = state.round + data;
         return { ...state, round: newRound, time: 60 };
@@ -88,7 +93,7 @@ export const GameContextProvider = ({ children }: Props) => {
       });
     };
 
-    const receiveData = (data: typeof game) => {
+    const receiveData = (data: { name: string; users: User[] }) => {
       dispatchGame({
         type: "all",
         data: data,
@@ -104,7 +109,9 @@ export const GameContextProvider = ({ children }: Props) => {
     };
 
     const startGame = () => {
-      dispatchGame({ type: "rounds", data: game.users.length });
+      const userLength = game.users.length
+      if(userLength < game.game.minPlayers) return
+      dispatchGame({ type: "rounds", data: userLength });
       void router.push("/draw");
     };
 

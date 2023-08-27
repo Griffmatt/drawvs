@@ -86,7 +86,7 @@ export default function Show() {
                 imageIndex={imageIndex}
                 images={images}
                 isAdmin={isAdmin}
-                rotation={game.rotation}
+                rotation={game.game.rotation}
               />
             )}
           </div>
@@ -123,6 +123,7 @@ const ImagesShown = ({
                 onClick={handleNextImage}
                 disabled={!isAdmin}
                 className="ml-auto h-fit w-fit rounded bg-white/30 px-4 py-2"
+                key={image.id}
               >
                 ...
               </button>

@@ -64,7 +64,7 @@ export default function Lobby() {
                 return (
                   <button
                     className={`flex justify-center rounded bg-white/20 p-6 align-middle hover:bg-white/10 ${
-                      gameInfo.name === game.name ? "border-2 border-white" : ""
+                      gameInfo.name === game.game.name ? "border-2 border-white" : ""
                     }`}
                     key={gameInfo.name}
                     onClick={() => handleGameChange(gameInfo)}

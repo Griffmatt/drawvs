@@ -14,7 +14,9 @@ export default function GameArea() {
   const { game } = useGameContext();
   const id = socket.id;
   const { image, userImages } = getImages(game, id);
-  const roundType = getRoundType(game.rotation, game.round);
+  const roundType = getRoundType(game.game.rotation, game.round);
+
+  console.log(image, userImages, roundType)
 
   if (!image || !userImages || !roundType) return;
 
@@ -55,7 +57,7 @@ const getImages = (game: Game, id: string) => {
 
   const length = users.length;
   const userIndex = index + round - 1;
-  const offSet = userIndex >= length ? userIndex - length : userIndex;
+  const offSet = userIndex >= length ? userIndex - (length * (Math.floor(userIndex / length))) : userIndex;
   const userImages = images[offSet];
   const image = userImages?.images[game.round - 1];
 

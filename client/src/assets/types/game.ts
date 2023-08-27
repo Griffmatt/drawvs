@@ -3,6 +3,8 @@ import type { Images, Rotation, User, UserImage } from "./types";
 type GameInfo = {
   name: string;
   rotation: Rotation;
+  minPlayers: number
+  roundsPerPlayer: number
 };
 
 type PayloadA = {
@@ -57,13 +59,12 @@ type Payload =
   | PayloadH;
 
 type Game = {
-  name: string;
   users: User[];
   rounds: number;
   round: number;
   time: number;
   images: Images[];
-  rotation: Rotation;
+  game: GameInfo
 };
 
 export type { Game, Payload, GameInfo };
