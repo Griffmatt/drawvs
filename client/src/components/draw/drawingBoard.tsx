@@ -8,9 +8,10 @@ import { loadImage } from "~/helpers/loadImage";
 interface Props {
   image: Image;
   userId: string;
+  animationImage?: HTMLImageElement | null;
 }
 
-export default function DrawingBoard({ image, userId }: Props) {
+export default function DrawingBoard({ image, userId, animationImage }: Props) {
   const { startDrawing, canvasRef, lines, clearLines } = useDraw();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [dimensions, setDimensions] = useState({ height: 0, width: 0 });
@@ -58,11 +59,45 @@ export default function DrawingBoard({ image, userId }: Props) {
         onPointerDown={startDrawing}
         ref={canvasRef}
       />
-      <canvas
-        className="absolute z-10 bg-white"
+      <BackGroundCanvas
         height={dimensions.height}
         width={dimensions.width}
+        image={animationImage}
       />
     </div>
   );
 }
+
+interface CanvasProps {
+  height: number;
+  width: number;
+  image?: HTMLImageElement | null;
+}
+
+const BackGroundCanvas = ({ height, width, image }: CanvasProps) => {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  useLayoutEffect(() => {
+    console.log(image)
+    const ctx = canvasRef.current?.getContext("2d");
+    if (ctx && image) {
+      ctx?.clearRect(0, 0, width, height);
+      ctx.globalAlpha = 0.5;
+      console.log(image)
+      if (image.complete) {
+        ctx?.drawImage(image, 0, 0, width, height);
+        return;
+      }
+      image.onload = () => {
+        ctx?.drawImage(image, 0, 0, width, height);
+      };
+    }
+  }, [height, image, width]);
+  return (
+    <canvas
+      className="absolute z-10 bg-white"
+      height={height}
+      width={width}
+      ref={canvasRef}
+    />
+  );
+};

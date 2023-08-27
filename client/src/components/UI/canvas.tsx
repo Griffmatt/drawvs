@@ -4,23 +4,23 @@ interface Props {
   image: HTMLImageElement;
 }
 
-export const Canvas = ({ image }: Props) => {
+export const Canvas = ({ image}: Props) => {
   const [dimensions, setDimensions] = useState({ height: 0, width: 0 });
   const containerRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useLayoutEffect(() => {
     const ctx = canvasRef.current?.getContext("2d");
-
-    if (image.complete) {
+    if (ctx) {
       ctx?.clearRect(0, 0, dimensions.width, dimensions.height);
-      ctx?.drawImage(image, 0, 0, dimensions.width, dimensions.height);
-      return
+      if (image.complete) {
+        ctx?.drawImage(image, 0, 0, dimensions.width, dimensions.height);
+        return;
+      }
+      image.onload = () => {
+        ctx?.drawImage(image, 0, 0, dimensions.width, dimensions.height);
+      };
     }
-    image.onload = () => {
-      ctx?.clearRect(0, 0, dimensions.width, dimensions.height);
-      ctx?.drawImage(image, 0, 0, dimensions.width, dimensions.height);
-    };
   }, [dimensions.height, dimensions.width, image]);
 
   useLayoutEffect(() => {
