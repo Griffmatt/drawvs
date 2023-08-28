@@ -36,13 +36,13 @@ export default function DrawingBoard({ image, userId, animationImage }: Props) {
       const ctx = canvasRef.current;
       if (!ctx) return;
       const canvasImage = loadImage(ctx.toDataURL());
-      const imageData = { ...image, userId: userId, image: canvasImage };
+      const imageData = { ...image, userId: userId, image: canvasImage, authorId: socket.id };
       dispatchGame({
         type: "image",
         data: imageData,
       });
       socket.emit("send-image", { ...imageData, image: ctx.toDataURL() });
-      clearLines();
+      clearLines()
     };
     socket.on("round-done", roundDone);
     return () => {
@@ -77,12 +77,10 @@ interface CanvasProps {
 const BackGroundCanvas = ({ height, width, image }: CanvasProps) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   useLayoutEffect(() => {
-    console.log(image)
     const ctx = canvasRef.current?.getContext("2d");
     if (ctx && image) {
       ctx?.clearRect(0, 0, width, height);
       ctx.globalAlpha = 0.5;
-      console.log(image)
       if (image.complete) {
         ctx?.drawImage(image, 0, 0, width, height);
         return;

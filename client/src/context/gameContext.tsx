@@ -48,12 +48,12 @@ export const GameContextProvider = ({ children }: Props) => {
       case "users":
         return { ...state, users: data };
       case "rounds":
-        const rounds = state.users.length * state.game.roundsPerPlayer
-        const images = Array.from({ length: rounds  }, (_, index) => {
-          return { id: index, prompt: "", image: null };
+        const rounds = state.users.length * state.game.roundsPerPlayer;
+        const images = Array.from({ length: rounds }, (_, index) => {
+          return { id: index, prompt: "", image: null, authorId: "" };
         });
         const usersInitImages = state.users.map((user) => {
-          return { userId: user.id, images: images };
+          return { userId: user.id, images: images, authorId: ""};
         });
         return { ...state, rounds: rounds, images: usersInitImages };
       case "round":
@@ -86,7 +86,6 @@ export const GameContextProvider = ({ children }: Props) => {
     };
 
     const updateGame = (data: GameInfo) => {
-      console.log(data);
       dispatchGame({
         type: "gameInfo",
         data: data,
@@ -109,8 +108,8 @@ export const GameContextProvider = ({ children }: Props) => {
     };
 
     const startGame = () => {
-      const userLength = game.users.length
-      if(userLength < game.game.minPlayers) return
+      const userLength = game.users.length;
+      if (userLength < game.game.minPlayers) return;
       dispatchGame({ type: "rounds", data: userLength });
       void router.push("/draw");
     };
@@ -120,6 +119,7 @@ export const GameContextProvider = ({ children }: Props) => {
       prompt: string;
       image: string;
       userId: string;
+      authorId: string;
     }) => {
       const newImage = loadImage(data.image);
       const newData = {
@@ -174,6 +174,7 @@ const updateImages = (Images: Images[], data: UserImage) => {
             id: data.id,
             prompt: data.prompt,
             image: data.image,
+            authorId: data.authorId
           };
         }
         if (image.id === data.id + 1) {

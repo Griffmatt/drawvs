@@ -13,14 +13,15 @@ type Lines = {
   opacity: number;
 }[][];
 
-type UserImage = Image & {
-  userId: string;
-};
-
 type Image = {
   id: number;
   prompt: string;
   image: HTMLImageElement | null;
+  authorId: string
+};
+
+type UserImage = Image & {
+  userId: string;
 };
 
 type Images = {

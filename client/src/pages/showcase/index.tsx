@@ -111,11 +111,14 @@ const ImagesShown = ({
   isAdmin,
   rotation,
 }: ImagesShownProps) => {
+  const { game } = useGameContext();
   return (
     <div className="overflow-y-scroll">
       <div className="h-full gap-4 p-4">
         {images.map((image, index) => {
           const roundType = getRoundType(rotation, index + 1);
+          const author = game.users.find((user) => user.id === image.authorId);
+          console.log(image.authorId);
           if (index > imageIndex + 1) return;
           if (index > imageIndex)
             return (
@@ -132,17 +135,20 @@ const ImagesShown = ({
             return (
               <div
                 key={image.id}
-                className="my-3 ml-auto h-fit w-fit rounded bg-white/30 px-4 py-2"
+                className="my-3 ml-auto h-fit w-fit rounded bg-white/30 px-4 py-2 text-right"
               >
+                <h4>{author?.name}</h4>
                 {image.prompt}
               </div>
             );
+
           if (roundType === "draw" || roundType === "animation") {
             return (
               <div
-                className="my-3 ml-auto aspect-[5/3] lg:w-[75%]"
+                className="my-3 ml-auto aspect-[5/3] text-right lg:w-[75%]"
                 key={image.id}
               >
+                <h4>{author?.name}</h4>
                 {image.image && <Canvas image={image.image} />}
               </div>
             );

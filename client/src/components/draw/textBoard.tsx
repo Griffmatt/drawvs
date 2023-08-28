@@ -19,7 +19,7 @@ export default function TextBoard({ image, userId, round, roundType }: Props) {
 
   useEffect(() => {
     const roundDone = () => {
-      const imageData = { ...image, prompt: prompt, userId: userId };
+      const imageData = { ...image, prompt: prompt, userId: userId, authorId: socket.id };
       dispatchGame({
         type: "image",
         data: imageData,
