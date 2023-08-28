@@ -13,14 +13,22 @@ export default function Show() {
   const router = useRouter();
   const { game } = useGameContext();
   const [roundIndex, setRoundIndex] = useState(0);
+  const [selectedUser, setSelectedUser] = useState(game.users[0])
   const [imageIndex, setImageIndex] = useState(0);
 
-  const images = game.images[roundIndex]?.images;
+  const images = game.images.find(image => image.userId === selectedUser?.id)?.images
   const finalImageReached = game.rounds === imageIndex + 1;
   const finalSRoundReached = game.images.length === roundIndex + 1;
 
   const isAdmin =
     game.users.filter((user) => user.id === socket.id)[0]?.isAdmin ?? false;
+
+    const changeUser = (id: string) => {
+      const foundUser = game.users.find(user => user.id === id)
+      if(finalSRoundReached){
+        setSelectedUser(foundUser)
+      }
+    }
 
   useEffect(() => {
     if (game.users.length === 0) {
@@ -77,9 +85,9 @@ export default function Show() {
         </div>
         <h2>Showcase</h2>
         <div className="flex aspect-[7/4] gap-2 overflow-hidden">
-          <UserList userId={game.images[roundIndex]?.userId} />
+          <UserList userId={selectedUser?.id} changeUser={changeUser}/>
           <div className="flex w-[67%] flex-col overflow-hidden rounded bg-black/20 p-4">
-            <h2>Drawvs</h2>
+            <h3>Drawvs</h3>
             {images && (
               <ImagesShown
                 handleNextImage={handleNextImage}
@@ -112,13 +120,13 @@ const ImagesShown = ({
   rotation,
 }: ImagesShownProps) => {
   const { game } = useGameContext();
+  
   return (
     <div className="overflow-y-scroll">
       <div className="h-full gap-4 p-4">
         {images.map((image, index) => {
           const roundType = getRoundType(rotation, index + 1);
           const author = game.users.find((user) => user.id === image.authorId);
-          console.log(image.authorId);
           if (index > imageIndex + 1) return;
           if (index > imageIndex)
             return (
